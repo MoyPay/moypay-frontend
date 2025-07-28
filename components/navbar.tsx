@@ -24,7 +24,7 @@ const Navbar: React.FC<NavbarProps> = () => {
   };
 
   return (
-    <div className="relative px-5 lg:px-5 w-full mx-auto rounded-t-2xl z-30 pt-5 pb-8 bg-background/50 -mb-5 mt-5">
+    <div className="relative px-5 lg:px-5 w-full mx-auto rounded-t-2xl z-30 pt-5 pb-8 bg-background/50 -mb-5">
       <div className="flex justify-between items-center pointer-events-auto z-40 relative">
         <div className="flex items-center gap-5">
           <div className="flex items-center gap-3 z-50">
