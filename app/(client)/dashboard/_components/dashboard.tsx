@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
+import { ArrowUpRight } from "lucide-react";
 
 import OrganizationCreator from "./organization-creator";
 
@@ -78,9 +79,10 @@ export default function Dashboard() {
               {organizationData.map((org) => (
                 <div
                   key={org.id}
-                  className="p-2 border-b border-b-muted-foreground"
+                  className="p-3 border-2 border-b-muted-foreground rounded-xl flex gap-2 items-center"
                 >
-                  {org.name}
+                  <span>{org.name}</span>
+                  <ArrowUpRight className="w-5 h-5" />
                 </div>
               ))}
             </div>
