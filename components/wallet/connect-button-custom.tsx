@@ -97,11 +97,19 @@ export const ConnectButtonCustom = () => {
         return (
           <div className="flex-row flex gap-3 z-50">
             <ButtonCustom onClick={openChainModal}>
-              {chain.hasIcon && (
+              {chain.hasIcon ? (
                 <div className="min-w-5">
                   <ChainIcon
                     background={chain.iconBackground}
                     iconUrl={chain.iconUrl}
+                    name={chain.name}
+                  />
+                </div>
+              ) : (
+                <div className="min-w-5">
+                  <ChainIcon
+                    background={chain.iconBackground}
+                    iconUrl="/etherlink-logo.png"
                     name={chain.name}
                   />
                 </div>

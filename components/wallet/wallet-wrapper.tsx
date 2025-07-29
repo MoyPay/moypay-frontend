@@ -38,7 +38,6 @@ export default function WalletWrapper({
     }
   }, [isMounted, isConnected, currentChainId, chainId]);
 
-  // 💥 Avoid hydration mismatch by rendering nothing until client mounts
   if (!isMounted) return null;
 
   if (!isConnected) {

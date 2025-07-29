@@ -4,7 +4,7 @@ import "@rainbow-me/rainbowkit/styles.css";
 
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
 import { WagmiProvider } from "wagmi";
-import { baseSepolia } from "wagmi/chains";
+import { etherlinkTestnet } from "wagmi/chains";
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
 
 import { ThemeProvider } from "./theme-provider";
@@ -24,7 +24,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     >
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
-          <RainbowKitProvider initialChain={baseSepolia} modalSize="compact">
+          <RainbowKitProvider
+            initialChain={etherlinkTestnet}
+            modalSize="compact"
+          >
             <Toaster />
             {children}
           </RainbowKitProvider>

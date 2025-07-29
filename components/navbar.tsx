@@ -102,8 +102,8 @@ const Navbar: React.FC<NavbarProps> = () => {
                   className={clsx(
                     "px-4 py-2 rounded-md text-sm",
                     pathname === item.href
-                      ? "bg-foreground/5 text-black  hover:bg-foreground/10"
-                      : "text-black hover:bg-foreground/10",
+                      ? "bg-foreground/5 hover:bg-foreground/10"
+                      : "hover:bg-foreground/10",
                   )}
                   href={item.href}
                   onClick={closeMobileMenu}
