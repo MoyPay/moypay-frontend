@@ -9,6 +9,7 @@ import {
 import { Loader2, Plus, Building } from "lucide-react";
 import { toast } from "sonner";
 import { isAddress } from "viem";
+import Image from "next/image";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -126,6 +127,7 @@ export default function OrganizationCreator({
           <div className="space-y-2">
             <Label htmlFor="org-name">Organization Name</Label>
             <Input
+              className="h-12"
               id="org-name"
               placeholder="Enter organization name"
               value={organizationName}
@@ -134,24 +136,32 @@ export default function OrganizationCreator({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="token-address">Payment Token Address</Label>
-            <Input
-              id="token-address"
-              placeholder="0x..."
+            <Label htmlFor="token-address">Payment Token</Label>
+            <Select
               value={tokenAddress}
-              onChange={(e) => setTokenAddress(e.target.value)}
-            />
-            <p className="text-xs text-muted-foreground">
-              Enter the address of the ERC20 token you want to use for payments
-            </p>
-            <Button
-              className="w-full"
-              size="sm"
-              variant="outline"
-              onClick={() => setTokenAddress(contractAddresses.mockUSDC)}
+              onValueChange={(value) => setTokenAddress(value)}
             >
-              Use Mock USDC
-            </Button>
+              <SelectTrigger className="h-12">
+                <SelectValue placeholder="Select token for payment" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={contractAddresses.mockUSDC}>
+                  <div className="flex items-center">
+                    <Image
+                      alt="USDC Token"
+                      className="inline-block mr-2"
+                      height={20}
+                      src="/usdc.png"
+                      width={20}
+                    />
+                    <span>Mock USDC</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+            <p className="text-xs text-muted-foreground">
+              Choose an ERC20 token to use for payments
+            </p>
           </div>
 
           <div className="space-y-2">

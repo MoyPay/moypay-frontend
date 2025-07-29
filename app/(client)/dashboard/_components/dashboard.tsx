@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { ArrowUpRight } from "lucide-react";
+import Link from "next/link";
 
 import OrganizationCreator from "./organization-creator";
 
@@ -62,28 +63,33 @@ export default function Dashboard() {
               Manage your organizations and payroll systems
             </p>
           </div>
-          <OrganizationCreator />
         </div>
 
         <Separator />
 
         <Card>
           <CardHeader>
-            <CardTitle>Organizations</CardTitle>
-            <CardDescription>
-              Select an organization to manage its payroll and settings
-            </CardDescription>
+            <div className="flex flex-row justify-between items-center">
+              <div className="flex flex-col items-start gap-2">
+                <CardTitle>Organizations</CardTitle>
+                <CardDescription>
+                  Select an organization to manage its payroll and settings
+                </CardDescription>
+              </div>
+              <OrganizationCreator />
+            </div>
           </CardHeader>
           <CardContent>
             <div className="flex flex-row gap-4">
               {organizationData.map((org) => (
-                <div
+                <Link
                   key={org.id}
                   className="p-3 border-2 border-b-muted-foreground rounded-xl flex gap-2 items-center"
+                  href={`/dashboard/organizations/${org.id}`}
                 >
                   <span>{org.name}</span>
                   <ArrowUpRight className="w-5 h-5" />
-                </div>
+                </Link>
               ))}
             </div>
           </CardContent>
