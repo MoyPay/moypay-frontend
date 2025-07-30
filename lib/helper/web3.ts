@@ -12,17 +12,8 @@ export const urlExplorer = ({
       explorer: string;
     };
   } = {
-    11155111: {
-      explorer: "https://sepolia.etherscan.io",
-    },
-    84532: {
-      explorer: "https://sepolia.basescan.org",
-    },
-    421614: {
-      explorer: "https://sepolia.arbiscan.io",
-    },
-    43113: {
-      explorer: "https://subnets-test.avax.network/c-chain",
+    128123: {
+      explorer: "https://testnet.explorer.etherlink.com",
     },
   };
 

@@ -61,7 +61,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         aria-label="Close dialog"
-        className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
         role="button"
         tabIndex={0}
         onClick={!isProcessing ? handleClose : undefined}
@@ -76,11 +76,11 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
         }
       />
 
-      <div className="relative bg-backgound rounded-3xl shadow-2xl max-w-md w-full overflow-hidden">
+      <div className="relative bg-gray-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-800">
         <div className="relative px-6 pt-6 pb-4">
           {!isProcessing && (
             <button
-              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-full transition-colors"
+              className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-full transition-colors"
               onClick={handleClose}
             >
               <X className="w-5 h-5 text-gray-400" />
@@ -89,24 +89,24 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
 
           <div className="text-center">
             {isSuccess && (
-              <div className="w-16 h-16 mx-auto mb-4 bg-green-50 rounded-full flex items-center justify-center">
-                <CheckCircle2 className="w-8 h-8 text-green-600" />
+              <div className="w-16 h-16 mx-auto mb-4 bg-green-900/30 rounded-full flex items-center justify-center">
+                <CheckCircle2 className="w-8 h-8 text-green-400" />
               </div>
             )}
 
             {isFailed && (
-              <div className="w-16 h-16 mx-auto mb-4 bg-red-50 rounded-full flex items-center justify-center">
-                <XCircle className="w-8 h-8 text-red-600" />
+              <div className="w-16 h-16 mx-auto mb-4 bg-red-900/30 rounded-full flex items-center justify-center">
+                <XCircle className="w-8 h-8 text-red-400" />
               </div>
             )}
 
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">
+            <h2 className="text-xl font-semibold text-white mb-2">
               {isProcessing && "Processing Transaction"}
               {isSuccess && "Transaction Complete"}
               {isFailed && "Transaction Failed"}
             </h2>
 
-            <p className="text-gray-600 text-sm">
+            <p className="text-gray-400 text-sm">
               {isProcessing && "Please wait while we process your transaction"}
               {isSuccess && "Your transaction has been confirmed"}
               {isFailed && "Something went wrong with your transaction"}
@@ -126,20 +126,20 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
                   <div key={step.step} className="flex items-center gap-4">
                     <div className="flex-shrink-0 relative">
                       {isCompleted ? (
-                        <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
-                          <CheckCircle2 className="w-5 h-5 text-green-600" />
+                        <div className="w-8 h-8 bg-green-900/30 rounded-full flex items-center justify-center">
+                          <CheckCircle2 className="w-5 h-5 text-green-400" />
                         </div>
                       ) : hasError ? (
-                        <div className="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
-                          <XCircle className="w-5 h-5 text-red-600" />
+                        <div className="w-8 h-8 bg-red-900/30 rounded-full flex items-center justify-center">
+                          <XCircle className="w-5 h-5 text-red-400" />
                         </div>
                       ) : isActive ? (
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                          <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                        <div className="w-8 h-8 bg-blue-900/30 rounded-full flex items-center justify-center">
+                          <Loader2 className="w-5 h-5 text-blue-400 animate-spin" />
                         </div>
                       ) : (
-                        <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center">
-                          <span className="text-gray-400 text-sm font-medium">
+                        <div className="w-8 h-8 bg-gray-800 rounded-full flex items-center justify-center">
+                          <span className="text-gray-500 text-sm font-medium">
                             {step.step}
                           </span>
                         </div>
@@ -148,7 +148,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
                       {index < steps.length - 1 && (
                         <div
                           className={`absolute top-8 left-4 w-px h-6 ${
-                            isCompleted ? "bg-green-200" : "bg-gray-200"
+                            isCompleted ? "bg-green-800" : "bg-gray-700"
                           }`}
                         />
                       )}
@@ -158,18 +158,18 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
                       <p
                         className={`text-sm font-medium ${
                           isCompleted
-                            ? "text-green-700"
+                            ? "text-green-300"
                             : hasError
-                              ? "text-red-700"
+                              ? "text-red-300"
                               : isActive
-                                ? "text-blue-700"
-                                : "text-gray-500"
+                                ? "text-blue-300"
+                                : "text-gray-400"
                         }`}
                       >
                         {step.text}
                       </p>
                       {hasError && step.error && (
-                        <p className="text-xs text-red-600 mt-1">
+                        <p className="text-xs text-red-400 mt-1">
                           {step.error}
                         </p>
                       )}
@@ -183,35 +183,35 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
 
         {txHash && !isProcessing && (
           <div className="px-6 pb-4">
-            <div className="bg-gray-50 rounded-2xl p-4">
+            <div className="bg-gray-800 rounded-2xl p-4">
               <div className="flex items-center justify-between mb-3">
-                <span className="text-sm font-medium text-gray-700">
+                <span className="text-sm font-medium text-gray-300">
                   Transaction Hash
                 </span>
                 <div className="flex items-center gap-1">
                   <button
-                    className="p-2 hover:bg-backgound rounded-lg transition-colors"
+                    className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
                     title="Copy"
                     onClick={() => copyToClipboard(txHash)}
                   >
                     {copied ? (
-                      <Check className="w-4 h-4 text-green-600" />
+                      <Check className="w-4 h-4 text-green-400" />
                     ) : (
-                      <Copy className="w-4 h-4 text-gray-500" />
+                      <Copy className="w-4 h-4 text-gray-400" />
                     )}
                   </button>
                   <a
-                    className="p-2 hover:bg-backgound rounded-lg transition-colors"
-                    href={urlExplorer({ txHash, chainId: 84532 })}
+                    className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                    href={urlExplorer({ txHash, chainId: 128123 })}
                     rel="noopener noreferrer"
                     target="_blank"
                     title="View on Explorer"
                   >
-                    <ExternalLink className="w-4 h-4 text-gray-500" />
+                    <ExternalLink className="w-4 h-4 text-gray-400" />
                   </a>
                 </div>
               </div>
-              <code className="text-xs font-mono text-gray-800 break-all block bg-backgound rounded-lg p-3">
+              <code className="text-xs font-mono text-gray-200 break-all block bg-gray-900 rounded-lg p-3">
                 {txHash}
               </code>
             </div>
@@ -220,10 +220,10 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
 
         {isFailed && errorMessage && (
           <div className="px-6 pb-4">
-            <div className="bg-red-50 border border-red-200 rounded-2xl p-4">
+            <div className="bg-red-900/20 border border-red-800 rounded-2xl p-4">
               <div className="flex items-start gap-3">
-                <XCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-                <p className="text-sm text-red-700 w-auto line-clamp-5">
+                <XCircle className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" />
+                <p className="text-sm text-red-300 w-auto line-clamp-5">
                   {errorMessage}
                 </p>
               </div>
@@ -234,7 +234,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
         <div className="px-6 pb-6">
           {isProcessing ? (
             <div className="text-center">
-              <div className="inline-flex items-center gap-2 text-sm text-gray-500">
+              <div className="inline-flex items-center gap-2 text-sm text-gray-400">
                 Please don&#39;t close this window
               </div>
             </div>
@@ -243,7 +243,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
               className={`w-full py-3 px-4 rounded-2xl font-medium text-sm transition-colors ${
                 isSuccess
                   ? "bg-green-600 hover:bg-green-700 text-white"
-                  : "bg-gray-900 hover:bg-gray-800 text-white"
+                  : "bg-gray-700 hover:bg-gray-600 text-white"
               }`}
               onClick={handleClose}
             >

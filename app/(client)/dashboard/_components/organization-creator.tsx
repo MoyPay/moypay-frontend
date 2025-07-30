@@ -1,13 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import {
-  useAccount,
-  useWriteContract,
-  useWaitForTransactionReceipt,
-} from "wagmi";
+import { useAccount } from "wagmi";
 import { Loader2, Plus, Building } from "lucide-react";
-import { toast } from "sonner";
 import { isAddress } from "viem";
 import Image from "next/image";
 
@@ -31,7 +26,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { contractAddresses, PERIOD_TIMES } from "@/lib/constants";
-import { FactoryABI } from "@/lib/abis/factory.abi";
+import { useCreateOrganization } from "@/hooks/mutation/contract/use-create-organization";
+import TransactionDialog from "@/components/dialog/dialog-transactions";
 
 interface OrganizationCreatorProps {
   onSuccess?: () => void;
@@ -45,55 +41,36 @@ export default function OrganizationCreator({
   const [tokenAddress, setTokenAddress] = useState("");
   const [organizationName, setOrganizationName] = useState("");
   const [periodTime, setPeriodTime] = useState<string>("");
+  const [transactionOpen, setTransactionOpen] = useState(false);
 
-  const {
-    writeContract,
-    isPending: isWritePending,
-    data: hash,
-  } = useWriteContract();
+  const { mutation, dialogStatus, steps, txHash } = useCreateOrganization();
 
-  const { isLoading: isConfirming } = useWaitForTransactionReceipt({
-    hash,
-  });
-
-  const isLoading = isWritePending || isConfirming;
+  const isLoading = mutation.isPending;
 
   const handleCreateOrganization = async () => {
-    if (!address) {
-      toast.error("Please connect your wallet");
-
+    if (
+      !address ||
+      !tokenAddress ||
+      !isAddress(tokenAddress) ||
+      !organizationName.trim()
+    ) {
       return;
     }
 
-    if (!tokenAddress || !isAddress(tokenAddress)) {
-      toast.error("Please enter a valid token address");
-
-      return;
-    }
-
-    if (!organizationName.trim()) {
-      toast.error("Please enter an organization name");
-
-      return;
-    }
-
-    try {
-      await writeContract({
-        address: contractAddresses.factory as HexAddress,
-        abi: FactoryABI,
-        functionName: "createOrganization",
-        args: [tokenAddress as HexAddress],
-      });
-
-      toast.success("Organization creation transaction submitted!");
-      setIsOpen(false);
-      setTokenAddress("");
-      setOrganizationName("");
-      setPeriodTime("");
-      onSuccess?.();
-    } catch {
-      toast.error("Failed to create organization");
-    }
+    mutation.mutate(
+      {
+        tokenAddress: tokenAddress,
+      },
+      {
+        onSuccess: () => {
+          setIsOpen(false);
+          setTokenAddress("");
+          setOrganizationName("");
+          setPeriodTime("");
+          onSuccess?.();
+        },
+      },
+    );
   };
 
   const periodOptions = [
@@ -104,103 +81,114 @@ export default function OrganizationCreator({
   ];
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <Button className="w-auto justify-start" size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Create Organization
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Building className="h-5 w-5" />
-            Create New Organization
-          </DialogTitle>
-          <DialogDescription>
-            Create a new organization to manage employees and payroll.
-            You&apos;ll need an ERC20 token address for payments.
-          </DialogDescription>
-        </DialogHeader>
+    <React.Fragment>
+      <TransactionDialog
+        errorMessage={mutation.error?.message}
+        isOpen={transactionOpen}
+        status={dialogStatus()}
+        steps={steps}
+        txHash={txHash as HexAddress}
+        onClose={() => setTransactionOpen(false)}
+      />
 
-        <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="org-name">Organization Name</Label>
-            <Input
-              className="h-12"
-              id="org-name"
-              placeholder="Enter organization name"
-              value={organizationName}
-              onChange={(e) => setOrganizationName(e.target.value)}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="token-address">Payment Token</Label>
-            <Select
-              value={tokenAddress}
-              onValueChange={(value) => setTokenAddress(value)}
-            >
-              <SelectTrigger className="h-12">
-                <SelectValue placeholder="Select token for payment" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value={contractAddresses.mockUSDC}>
-                  <div className="flex items-center">
-                    <Image
-                      alt="USDC Token"
-                      className="inline-block mr-2"
-                      height={20}
-                      src="/usdc.png"
-                      width={20}
-                    />
-                    <span>Mock USDC</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              Choose an ERC20 token to use for payments
-            </p>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="period-time">Default Payment Period</Label>
-            <Select value={periodTime} onValueChange={setPeriodTime}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select payment period" />
-              </SelectTrigger>
-              <SelectContent>
-                {periodOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <p className="text-xs text-muted-foreground">
-              This can be changed later for each organization
-            </p>
-          </div>
-        </div>
-
-        <DialogFooter>
-          <Button
-            disabled={isLoading}
-            variant="outline"
-            onClick={() => setIsOpen(false)}
-          >
-            Cancel
-          </Button>
-          <Button
-            disabled={isLoading || !tokenAddress || !organizationName.trim()}
-            onClick={handleCreateOrganization}
-          >
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      <Dialog open={isOpen} onOpenChange={setIsOpen}>
+        <DialogTrigger asChild>
+          <Button className="w-auto justify-start" size="sm">
+            <Plus className="h-4 w-4 mr-2" />
             Create Organization
           </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Building className="h-5 w-5" />
+              Create New Organization
+            </DialogTitle>
+            <DialogDescription>
+              Create a new organization to manage employees and payroll.
+              You&apos;ll need an ERC20 token address for payments.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="org-name">Organization Name</Label>
+              <Input
+                className="h-12"
+                id="org-name"
+                placeholder="Enter organization name"
+                value={organizationName}
+                onChange={(e) => setOrganizationName(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="token-address">Payment Token</Label>
+              <Select
+                value={tokenAddress}
+                onValueChange={(value) => setTokenAddress(value)}
+              >
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Select token for payment" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={contractAddresses.mockUSDC}>
+                    <div className="flex items-center">
+                      <Image
+                        alt="USDC Token"
+                        className="inline-block mr-2"
+                        height={20}
+                        src="/usdc.png"
+                        width={20}
+                      />
+                      <span>Mock USDC</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                Choose an ERC20 token to use for payments
+              </p>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="period-time">Default Payment Period</Label>
+              <Select value={periodTime} onValueChange={setPeriodTime}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select payment period" />
+                </SelectTrigger>
+                <SelectContent>
+                  {periodOptions.map((option) => (
+                    <SelectItem key={option.value} value={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-xs text-muted-foreground">
+                This can be changed later for each organization
+              </p>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              disabled={isLoading}
+              variant="outline"
+              onClick={() => setIsOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button
+              disabled={isLoading || !tokenAddress || !organizationName.trim()}
+              onClick={handleCreateOrganization}
+            >
+              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create Organization
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </React.Fragment>
   );
 }

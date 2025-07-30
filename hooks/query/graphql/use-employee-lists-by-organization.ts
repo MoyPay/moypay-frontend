@@ -15,8 +15,10 @@ type CachedEmployeeData = {
 
 export const useEmployeeListsByOrganization = ({
   organizationAddress,
+  enabled,
 }: {
   organizationAddress: string;
+  enabled?: boolean;
 }) => {
   const queryClient = useQueryClient();
   const [isFetchingMore, setIsFetchingMore] = useState(false);
@@ -48,7 +50,7 @@ export const useEmployeeListsByOrganization = ({
 
   const cachedData = getCachedData();
 
-  const { data, isLoading, isError, refetch, isFetching } =
+  const { data, isLoading, isError, refetch, isFetching, error } =
     useQuery<EmployeeListsResponse>({
       queryKey: [
         "employeeListsByOrganization",
@@ -80,7 +82,7 @@ export const useEmployeeListsByOrganization = ({
 
         return result;
       },
-      enabled: !!organizationAddress,
+      enabled: !!organizationAddress || enabled,
       staleTime: 5 * 60 * 1000,
       refetchOnWindowFocus: false,
     });
@@ -178,6 +180,7 @@ export const useEmployeeListsByOrganization = ({
       fetchAllPages,
       totalCount: cachedData.totalCount,
       pageInfo: cachedData.pageInfo,
+      error,
       resetPagination,
     }),
     [
@@ -190,6 +193,7 @@ export const useEmployeeListsByOrganization = ({
       hasNextPage,
       fetchNextPage,
       fetchAllPages,
+      error,
       resetPagination,
     ],
   );

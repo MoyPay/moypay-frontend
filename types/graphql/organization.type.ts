@@ -15,6 +15,9 @@ export type OrganizationItem = {
   totalDeposits: string;
   totalEmployees: number;
   totalWithdrawals: string;
+  currentBalance: string;
+  shortfall: string;
+  totalSalary: string;
 };
 
 export type OrganizationListsResponse = {

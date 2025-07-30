@@ -27,6 +27,9 @@ export const queryOrganizationListsByOwner = (
           totalDeposits
           totalEmployees
           totalWithdrawals
+          currentBalance
+          shortfall
+          totalSalary
         }
         pageInfo {
           startCursor
@@ -58,6 +61,9 @@ export const queryOrganizationListById = (id: string) => {
         totalDeposits
         totalEmployees
         totalWithdrawals
+        currentBalance
+        shortfall
+        totalSalary
       }
     }
   `;
