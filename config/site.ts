@@ -17,8 +17,8 @@ export const siteConfig = {
       href: "/home",
     },
     {
-      label: "Ramp",
-      href: "/ramp",
+      label: "Withdraw",
+      href: "/withdraw",
     },
     {
       label: "Dashboard",
