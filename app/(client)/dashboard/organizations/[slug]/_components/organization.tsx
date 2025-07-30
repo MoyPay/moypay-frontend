@@ -15,11 +15,11 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useOrganizationListById } from "@/hooks/query/graphql/use-organization-list-by-id";
-import { PERIOD_TIMES } from "@/lib/constants";
 import { normalize } from "@/lib/helper/bignumber";
 import { useEmployeeListsByOrganization } from "@/hooks/query/graphql/use-employee-lists-by-organization";
 import { formatCompactNumber } from "@/lib/helper/number";
 import { urlExplorer } from "@/lib/helper/web3";
+import { PERIOD_LABELS } from "@/lib/constants";
 
 interface OrganizationProps {
   id: string;
@@ -46,8 +46,25 @@ export default function Organization({ id }: OrganizationProps) {
     return `${address.slice(0, 6)}...${address.slice(-6)}`;
   };
 
-  const getPeriodTime = (period: keyof typeof PERIOD_TIMES) => {
-    return PERIOD_TIMES[period] ?? "Custom";
+  const PERIOD_TIMES = {
+    DAILY: 86400,
+    WEEKLY: 604800,
+    MONTHLY: 2629746,
+    YEARLY: 31556952,
+  } as const;
+
+  const getPeriodLabel = (periodValue: string | number): string => {
+    if (typeof periodValue === "string" && periodValue in PERIOD_TIMES) {
+      return periodValue;
+    }
+
+    const matchedEntry = Object.entries(PERIOD_TIMES).find(
+      ([_, value]) => Number(periodValue) === value,
+    );
+
+    return matchedEntry
+      ? PERIOD_LABELS[matchedEntry[0] as keyof typeof PERIOD_LABELS]
+      : "Custom";
   };
 
   if (orgLoading) {
@@ -195,10 +212,8 @@ export default function Organization({ id }: OrganizationProps) {
           <div className="flex flex-wrap justify-between gap-4 lg:gap-6">
             <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
               <span className="text-sm text-muted-foreground">Period Time</span>
-              <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
-                {org?.periodTime && org?.periodTime in PERIOD_TIMES
-                  ? getPeriodTime(org.periodTime as keyof typeof PERIOD_TIMES)
-                  : "Custom"}
+              <span className="text-3xl sm:text-4xl lg:text-5xl leading-none capitalize">
+                {getPeriodLabel(org?.periodTime ?? "")}
               </span>
             </div>
 

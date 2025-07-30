@@ -30,5 +30,12 @@ export const PERIOD_TIMES = {
   YEARLY: 31556952,
 } as const;
 
+export const PERIOD_LABELS = {
+  DAILY: "Daily",
+  WEEKLY: "Weekly",
+  MONTHLY: "Monthly",
+  YEARLY: "Yearly",
+};
+
 export const urlSubgraph =
   env.NEXT_PUBLIC_API_SUBGRAPH_BASE_SEPOLIA_URL || "https://indexer.moypay.xyz";
