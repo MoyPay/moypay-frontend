@@ -232,7 +232,9 @@ export default function Organization({ id }: OrganizationProps) {
                 Outstanding Salary
               </span>
               <div className="flex items-center gap-2">
-                <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
+                <span
+                  className={`text-3xl sm:text-4xl lg:text-5xl leading-none ${Number(org?.shortfall ?? "0") > 0 ? "text-destructive" : "text-green-500"}`}
+                >
                   ${formatCompactNumber(normalize(org?.shortfall ?? "0", 18))}
                 </span>
               </div>

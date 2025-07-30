@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -29,6 +30,7 @@ export function VisaTab({
 
   const handleExpirationChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, "");
+
     if (value.length > 4) value = value.slice(0, 4);
     if (value.length >= 3) {
       value = `${value.slice(0, 2)}/${value.slice(2)}`;
@@ -38,6 +40,7 @@ export function VisaTab({
 
   const handleCvcChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let value = e.target.value.replace(/\D/g, "");
+
     if (value.length > 4) value = value.slice(0, 4);
     setCvc(value);
   };
@@ -48,8 +51,8 @@ export function VisaTab({
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
-          type="email"
           placeholder="example@example.com"
+          type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
@@ -60,32 +63,32 @@ export function VisaTab({
 
         <div className="flex gap-4 mt-2">
           <div className="flex-1">
-            <Label htmlFor="expiration" className="mb-2">
+            <Label className="mb-2" htmlFor="expiration">
               Expiration Date
             </Label>
             <Input
+              className="mt-1"
               id="expiration"
+              inputMode="numeric"
+              maxLength={5}
               placeholder="MM/YY"
               value={expiration}
               onChange={handleExpirationChange}
-              inputMode="numeric"
-              maxLength={5}
-              className="mt-1"
             />
           </div>
 
           <div className="flex-1">
-            <Label htmlFor="cvc" className="mb-2">
+            <Label className="mb-2" htmlFor="cvc">
               CVC
             </Label>
             <Input
+              className="mt-1"
               id="cvc"
+              inputMode="numeric"
+              maxLength={4}
               placeholder="123"
               value={cvc}
               onChange={handleCvcChange}
-              inputMode="numeric"
-              maxLength={4}
-              className="mt-1"
             />
           </div>
         </div>

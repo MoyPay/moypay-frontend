@@ -1,5 +1,10 @@
 // WithdrawlDialog.tsx
 import React, { useState, useEffect } from "react";
+import { Building, CardSim, Flag, Plus, Trash2 } from "lucide-react";
+
+import { VisaTab } from "../tabs/visa-tab";
+import { BankTab } from "../tabs/bank-tab";
+
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -12,9 +17,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Building, CardSim, Flag, Plus, Trash2 } from "lucide-react";
-import { VisaTab } from "../tabs/visa-tab";
-import { BankTab } from "../tabs/bank-tab";
 
 export function WithdrawlDialog({
   setWithdrawMethod,
@@ -28,17 +30,19 @@ export function WithdrawlDialog({
   onOpenChange?: (open: boolean) => void;
 }) {
   const [visaData, setVisaData] = useState(
-    initialMethod?.type === "visa" ? initialMethod.data : {}
+    initialMethod?.type === "visa" ? initialMethod.data : {},
   );
   const [bankData, setBankData] = useState(
-    initialMethod?.type === "bank" ? initialMethod.data : {}
+    initialMethod?.type === "bank" ? initialMethod.data : {},
   );
 
   useEffect(() => {
     const stored = localStorage.getItem("withdrawMethod");
+
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
+
         setWithdrawMethod(parsed);
       } catch (e) {
         console.error("Invalid localStorage withdrawMethod", e);
@@ -75,10 +79,12 @@ export function WithdrawlDialog({
       (type === "bank" && !isBankValid)
     ) {
       alert("Please fill in all required fields before saving.");
+
       return;
     }
 
     const method = { type, data };
+
     localStorage.setItem("withdrawMethod", JSON.stringify(method));
     setWithdrawMethod(method);
     onOpenChange?.(false);
@@ -103,10 +109,10 @@ export function WithdrawlDialog({
             </TabsTrigger>
           </TabsList>
           <TabsContent value="visa">
-            <VisaTab onChange={setVisaData} initialData={{}} />
+            <VisaTab initialData={{}} onChange={setVisaData} />
           </TabsContent>
           <TabsContent value="bank">
-            <BankTab onChange={setBankData} initialData={{}} />
+            <BankTab initialData={{}} onChange={setBankData} />
           </TabsContent>
         </Tabs>
       );
@@ -114,26 +120,27 @@ export function WithdrawlDialog({
 
     if (initialMethod.type === "visa") {
       return (
-        <VisaTab onChange={setVisaData} initialData={initialMethod.data} />
+        <VisaTab initialData={initialMethod.data} onChange={setVisaData} />
       );
     }
 
     if (initialMethod.type === "bank") {
       return (
-        <BankTab onChange={setBankData} initialData={initialMethod.data} />
+        <BankTab initialData={initialMethod.data} onChange={setBankData} />
       );
     }
 
     return null;
   };
+
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
       {!initialMethod && (
         <AlertDialogTrigger asChild>
           <Button
             className="w-full justify-center mt-5"
-            variant="ghost"
             size="sm"
+            variant="ghost"
           >
             <Plus className="h-4 w-4 mr-2" />
             Add Withdrawl Method
@@ -166,7 +173,7 @@ export function WithdrawlDialog({
               </Button>
             )}
           </div>
-          <Button onClick={handleAddMethod} disabled={!isFormValid}>
+          <Button disabled={!isFormValid} onClick={handleAddMethod}>
             {initialMethod ? "Update Method" : "Add Method"}
           </Button>
         </AlertDialogFooter>

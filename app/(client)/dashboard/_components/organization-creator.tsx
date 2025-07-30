@@ -25,7 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { contractAddresses, PERIOD_TIMES } from "@/lib/constants";
+import { contractAddresses } from "@/lib/constants";
 import { useCreateOrganization } from "@/hooks/mutation/contract/use-create-organization";
 import TransactionDialog from "@/components/dialog/dialog-transactions";
 
@@ -40,7 +40,6 @@ export default function OrganizationCreator({
   const [isOpen, setIsOpen] = useState(false);
   const [tokenAddress, setTokenAddress] = useState("");
   const [organizationName, setOrganizationName] = useState("");
-  const [periodTime, setPeriodTime] = useState<string>("");
   const [transactionOpen, setTransactionOpen] = useState(false);
 
   const { mutation, dialogStatus, steps, txHash } = useCreateOrganization();
@@ -66,19 +65,11 @@ export default function OrganizationCreator({
           setIsOpen(false);
           setTokenAddress("");
           setOrganizationName("");
-          setPeriodTime("");
           onSuccess?.();
         },
       },
     );
   };
-
-  const periodOptions = [
-    { value: PERIOD_TIMES.DAILY.toString(), label: "Daily" },
-    { value: PERIOD_TIMES.WEEKLY.toString(), label: "Weekly" },
-    { value: PERIOD_TIMES.MONTHLY.toString(), label: "Monthly" },
-    { value: PERIOD_TIMES.YEARLY.toString(), label: "Yearly" },
-  ];
 
   return (
     <React.Fragment>
@@ -148,25 +139,6 @@ export default function OrganizationCreator({
               </Select>
               <p className="text-xs text-muted-foreground">
                 Choose an ERC20 token to use for payments
-              </p>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="period-time">Default Payment Period</Label>
-              <Select value={periodTime} onValueChange={setPeriodTime}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select payment period" />
-                </SelectTrigger>
-                <SelectContent>
-                  {periodOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <p className="text-xs text-muted-foreground">
-                This can be changed later for each organization
               </p>
             </div>
           </div>

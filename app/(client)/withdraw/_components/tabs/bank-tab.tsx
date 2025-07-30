@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -19,7 +20,9 @@ export function BankTab({
   onChange: (data: any) => void;
 }) {
   const [bank, setBank] = useState(initialData.bank || "");
-  const [accountNumber, setAccountNumber] = useState(initialData.accountNumber || "");
+  const [accountNumber, setAccountNumber] = useState(
+    initialData.accountNumber || "",
+  );
 
   useEffect(() => {
     onChange({ bank, accountNumber });
@@ -44,8 +47,8 @@ export function BankTab({
           </SelectContent>
         </Select>
         <Input
-          id="account-number"
           className="w-full rounded-tl-none rounded-bl-none border-l-0"
+          id="account-number"
           value={accountNumber}
           onChange={(e) => setAccountNumber(e.target.value)}
         />
