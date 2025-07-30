@@ -12,7 +12,7 @@ import { Toaster } from "./ui/sonner";
 
 import { config } from "@/lib/wagmi";
 
-const queryClient = new QueryClient();
+export const queryClient = new QueryClient();
 
 export default function Providers({ children }: { children: React.ReactNode }) {
   return (

@@ -1,53 +1,35 @@
 "use client";
 
 import Image from "next/image";
-import {
-  ArrowUpRight,
-  Settings,
-  AlertCircle,
-  Users,
-  Building2,
-  ArrowLeft,
-} from "lucide-react";
+import { ArrowUpRight, AlertCircle, Building2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { useAccount } from "wagmi";
-
-import EmployeeCreator from "./dialog/employee-creator";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useOrganizationListById } from "@/hooks/query/graphql/use-organization-list-by-id";
 import { normalize } from "@/lib/helper/bignumber";
-import { useEmployeeListsByOrganization } from "@/hooks/query/graphql/use-employee-lists-by-organization";
 import { formatCompactNumber } from "@/lib/helper/number";
 import { formatAddress, urlExplorer } from "@/lib/helper/web3";
-import { PERIOD_TIMES } from "@/lib/constants";
+import { useOrganizationJoinedListById } from "@/hooks/query/graphql/use-organization-joined-list-by-id";
 import { getPeriodLabel } from "@/lib/helper/period";
 import { getIncrementalSalary } from "@/lib/helper/salary";
+import { useEmployeeListsByEmployee } from "@/hooks/query/graphql/use-employee-lists-by-employee";
 
 interface OrganizationProps {
   id: string;
 }
 
-export default function Organization({ id }: OrganizationProps) {
-  const { address: userAddress } = useAccount();
-
+export default function OrganizationJoined({ id }: OrganizationProps) {
   const {
     data: org,
     isLoading: orgLoading,
     error: orgError,
-    refetch,
-  } = useOrganizationListById({ id });
+  } = useOrganizationJoinedListById({ id });
   const {
-    data: emp,
-    isLoading: empLoading,
-    error: empError,
-    resetPagination,
-  } = useEmployeeListsByOrganization({
-    organizationAddress: org?.organization ?? "",
-    enabled: !!org?.organization,
-  });
+    data: employee,
+    isLoading: employeesLoading,
+    error: employeesError,
+  } = useEmployeeListsByEmployee({ employeeAddress: org?.employee ?? "" });
 
   const [now, setNow] = useState(Math.floor(Date.now() / 1000));
 
@@ -59,7 +41,7 @@ export default function Organization({ id }: OrganizationProps) {
     return () => clearInterval(interval);
   }, []);
 
-  if (orgLoading) {
+  if (orgLoading || employeesLoading) {
     return (
       <div className="w-full h-auto max-w-7xl mx-auto p-4 my-5 2xl:p-10">
         <div className="flex flex-col gap-10">
@@ -107,7 +89,7 @@ export default function Organization({ id }: OrganizationProps) {
     );
   }
 
-  if (orgError) {
+  if (orgError || employeesError) {
     return (
       <div className="w-full h-auto max-w-7xl mx-auto p-4 my-5 2xl:p-10">
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -116,7 +98,7 @@ export default function Organization({ id }: OrganizationProps) {
             Failed to Load Organization
           </h2>
           <p className="text-muted-foreground text-center max-w-md">
-            {orgError.message ||
+            {orgError?.message ||
               "There was an error loading the organization data. Please try again later."}
           </p>
           <Button variant="outline" onClick={() => window.location.reload()}>
@@ -127,7 +109,7 @@ export default function Organization({ id }: OrganizationProps) {
     );
   }
 
-  if (!org || org.owner !== userAddress) {
+  if (!org || !employee) {
     return (
       <div className="w-full h-auto max-w-7xl mx-auto p-4 my-5 2xl:p-10">
         <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
@@ -140,7 +122,7 @@ export default function Organization({ id }: OrganizationProps) {
             have been deleted or moved.
           </p>
           <Button asChild variant="outline">
-            <Link href="/dashboard">Browse Organizations</Link>
+            <Link href="/organizations">Browse Organizations</Link>
           </Button>
         </div>
       </div>
@@ -180,6 +162,7 @@ export default function Organization({ id }: OrganizationProps) {
                       chainId: 128123,
                       address: org.organization,
                     })}
+                    rel="noopener noreferrer"
                     target="_blank"
                   >
                     <span className="truncate">
@@ -194,10 +177,6 @@ export default function Organization({ id }: OrganizationProps) {
                 )}
               </div>
             </div>
-            <Button className="w-full sm:w-auto flex-shrink-0">
-              <Settings className="w-5 h-5" />
-              <span className="ml-2">Settings</span>
-            </Button>
           </div>
 
           <div className="flex flex-wrap justify-between gap-4 lg:gap-6">
@@ -209,162 +188,41 @@ export default function Organization({ id }: OrganizationProps) {
             </div>
 
             <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
-              <span className="text-sm text-muted-foreground">
-                Total Active Employees
-              </span>
+              <span className="text-sm text-muted-foreground">Status</span>
               <div className="flex items-end gap-1">
                 <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
-                  {org?.activeEmployees ?? "0"} / {org?.totalEmployees ?? "0"}
+                  {employee.status === true ? "Active" : "Inactive"}
                 </span>
               </div>
             </div>
 
             <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
               <span className="text-sm text-muted-foreground">
-                Current Deposited
+                Target Salary This Period
+              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
+                  ${formatCompactNumber(normalize(employee?.salary ?? "0", 18))}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
+              <span className="text-sm text-muted-foreground">
+                Salary Balance
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
                   $
-                  {formatCompactNumber(
-                    normalize(org?.totalDeposits ?? "0", 18),
+                  {getIncrementalSalary(
+                    employee?.salary ?? "0",
+                    org?.periodTime,
+                    org?.createdAt ?? 0,
+                    now,
                   )}
                 </span>
               </div>
             </div>
-
-            <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
-              <span className="text-sm text-muted-foreground">
-                Outstanding Salary
-              </span>
-              <div className="flex items-center gap-2">
-                <span
-                  className={`text-3xl sm:text-4xl lg:text-5xl leading-none ${Number(org?.shortfall ?? "0") > 0 ? "text-destructive" : "text-green-500"}`}
-                >
-                  ${formatCompactNumber(normalize(org?.shortfall ?? "0", 18))}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex border rounded-2xl w-full h-fit min-h-[200px] p-4 sm:p-5">
-          <div className="flex flex-col gap-6 w-full">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-              <h2 className="text-xl sm:text-2xl font-semibold">
-                List Employee
-              </h2>
-              <EmployeeCreator
-                organizationAddress={(org?.organization as HexAddress) ?? ""}
-                refetch={refetch}
-                resetPagination={resetPagination}
-              />
-            </div>
-
-            {empLoading && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="p-3 border-2 rounded-xl">
-                    <div className="flex gap-3 items-center">
-                      <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" />
-                      <div className="flex flex-col gap-2 flex-1 min-w-0">
-                        <Skeleton className="h-4 w-20" />
-                        <Skeleton className="h-3 w-16" />
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {empError && !empLoading && (
-              <div className="flex flex-col items-center justify-center py-12 gap-4">
-                <AlertCircle className="w-12 h-12 text-red-500" />
-                <div className="text-center">
-                  <h3 className="font-semibold text-lg">
-                    Failed to Load Employees
-                  </h3>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    {empError.message ||
-                      "There was an error loading employee data."}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {!empLoading && !empError && (!emp || emp.length === 0) && (
-              <div className="flex flex-col items-center justify-center py-12 gap-4">
-                <Users className="w-12 h-12 text-muted-foreground" />
-                <div className="text-center">
-                  <h3 className="font-semibold text-lg">No Employees Yet</h3>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Start building your team by adding your first employee.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {!empLoading && !empError && emp && emp.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                {emp.map((employee) => (
-                  <div
-                    key={employee.id}
-                    className="p-3 border-2 border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-xl flex flex-col gap-3 min-w-0 cursor-pointer hover:shadow-sm"
-                  >
-                    <div className="flex items-center gap-3 w-full">
-                      <Image
-                        alt={`Employee ${Number(employee.createdAt) % 36} avatar`}
-                        className="w-12 h-12 rounded-full flex-shrink-0"
-                        height={48}
-                        src={`/images/abstract2/${Number(employee.createdAt) % 16}.jpg`}
-                        width={48}
-                        onError={(e) => {
-                          e.currentTarget.src = "/images/default-avatar.png";
-                        }}
-                      />
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span className="font-semibold text-sm truncate">
-                          {employee.name || "Unnamed Employee"}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          <Link
-                            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:underline transition-all duration-200 w-fit"
-                            href={urlExplorer({
-                              chainId: 128123,
-                              address: employee.employee,
-                            })}
-                            target="_blank"
-                          >
-                            <span className="truncate">
-                              {formatAddress(employee.employee)}
-                            </span>
-                            <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
-                          </Link>
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="text-xs text-muted-foreground">
-                        Salary: $
-                        {formatCompactNumber(
-                          normalize(employee.salary ?? "0", 18),
-                        )}{" "}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        Current Salary: $
-                        {getIncrementalSalary(
-                          employee.salary ?? "0",
-                          org?.periodTime as keyof typeof PERIOD_TIMES,
-                          org?.createdAt ?? 0,
-                          now,
-                        )}{" "}
-                      </span>
-                    </div>
-                    <Button variant="default">View Details</Button>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>

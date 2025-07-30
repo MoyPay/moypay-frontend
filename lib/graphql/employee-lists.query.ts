@@ -21,6 +21,42 @@ export const queryEmployeeListsByOrganization = (
           organization
           salary
           status
+          name
+        }
+        pageInfo {
+          startCursor
+          endCursor
+          hasPreviousPage
+          hasNextPage
+        }
+        totalCount
+      }
+    }
+  `;
+};
+
+export const queryEmployeeListsByEmployee = (
+  employee: string,
+  after: string | null = null,
+) => {
+  return gql`
+    query {
+      employeeLists(
+        orderBy: "createdAt"
+        orderDirection: "desc"
+        where: {employee: "${employee}"}
+        ${after ? `after: "${after}"` : ""}
+      ){
+        items {
+          createdAt
+          employee
+          id
+          lastTransaction
+          lastUpdated
+          organization
+          salary
+          status
+          name
         }
         pageInfo {
           startCursor
@@ -46,6 +82,7 @@ export const queryEmployeeListById = (id: string) => {
         organization
         salary
         status
+        name
       }
     }
   `;

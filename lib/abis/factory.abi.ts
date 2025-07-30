@@ -7,6 +7,76 @@ export const FactoryABI = [
     type: "constructor",
   },
   {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "earnProtocol",
+        type: "address",
+      },
+    ],
+    name: "EarnProtocolAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "earnProtocol",
+        type: "address",
+      },
+    ],
+    name: "EarnProtocolRemoved",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "earnStandard",
+        type: "address",
+      },
+    ],
+    name: "EarnStandardSet",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "owner",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "organization",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "address",
+        name: "token",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "string",
+        name: "name",
+        type: "string",
+      },
+    ],
+    name: "OrganizationCreated",
+    type: "event",
+  },
+  {
     inputs: [
       {
         internalType: "address",
@@ -26,9 +96,20 @@ export const FactoryABI = [
         name: "_token",
         type: "address",
       },
+      {
+        internalType: "string",
+        name: "_name",
+        type: "string",
+      },
     ],
     name: "createOrganization",
-    outputs: [],
+    outputs: [
+      {
+        internalType: "address",
+        name: "",
+        type: "address",
+      },
+    ],
     stateMutability: "nonpayable",
     type: "function",
   },

@@ -9,7 +9,7 @@ const config = getDefaultConfig({
   projectId: process.env.NEXT_PUBLIC_WC_PROJECT_ID || "",
   chains: [etherlinkTestnet],
   transports: {
-    [etherlinkTestnet.id]: http("https://rpc.ankr.com/etherlink_testnet"),
+    [etherlinkTestnet.id]: http("https://node.ghostnet.etherlink.com"),
   },
 });
 

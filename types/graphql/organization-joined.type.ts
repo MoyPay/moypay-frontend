@@ -1,10 +1,11 @@
 import { PageInfo } from "./graphql.type";
 
-export type OrganizationItem = {
+export type OrganizationJoinedItem = {
   activeEmployees: number;
   countDeposits: number;
   countWithdraws: number;
   createdAt: number;
+  employee: string;
   id: string;
   lastTransaction: string;
   lastUpdated: number;
@@ -21,14 +22,14 @@ export type OrganizationItem = {
   name: string;
 };
 
-export type OrganizationListsResponse = {
-  organizationLists: {
-    items: OrganizationItem[];
+export type OrganizationJoinedListsResponse = {
+  organizationJoinedLists: {
+    items: OrganizationJoinedItem[];
     pageInfo: PageInfo;
     totalCount: number;
   };
 };
 
-export type OrganizationResponse = {
-  organizationList: OrganizationItem;
+export type OrganizationJoinedResponse = {
+  organizationJoinedList: OrganizationJoinedItem;
 };

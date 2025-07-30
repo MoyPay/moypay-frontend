@@ -1,15 +1,15 @@
 import { gql } from "graphql-request";
 
-export const queryOrganizationListsByOwner = (
-  owner: string,
+export const queryOrganizationJoinedListsByEmployee = (
+  employee: string,
   after: string | null = null,
 ) => {
   return gql`
     query {
-      organizationLists(
+      organizationJoinedLists(
         orderBy: "createdAt"
         orderDirection: "desc"
-        where: {owner: "${owner}"}
+        where: {employee: "${employee}"}
         ${after ? `after: "${after}"` : ""}
       ){
         items {
@@ -17,19 +17,20 @@ export const queryOrganizationListsByOwner = (
           countDeposits
           countWithdraws
           createdAt
+          currentBalance
+          employee
           id
           lastTransaction
           lastUpdated
           organization
           owner
           periodTime
+          shortfall
           token
           totalDeposits
           totalEmployees
-          totalWithdrawals
-          currentBalance
-          shortfall
           totalSalary
+          totalWithdrawals
           name
         }
         pageInfo {
@@ -44,27 +45,28 @@ export const queryOrganizationListsByOwner = (
   `;
 };
 
-export const queryOrganizationListById = (id: string) => {
+export const queryOrganizationJoinedListById = (id: string) => {
   return gql`
     query {
-      organizationList(id: "${id}"){
+      organizationJoinedList(id: "${id}"){
         activeEmployees
         countDeposits
         countWithdraws
         createdAt
+        currentBalance
+        employee
         id
         lastTransaction
         lastUpdated
         organization
         owner
         periodTime
+        shortfall
         token
         totalDeposits
         totalEmployees
-        totalWithdrawals
-        currentBalance
-        shortfall
         totalSalary
+        totalWithdrawals
         name
       }
     }

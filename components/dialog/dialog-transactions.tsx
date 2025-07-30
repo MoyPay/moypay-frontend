@@ -47,7 +47,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   };
 
   const handleClose = () => {
-    if (status === "loading") return;
+    if (status === "loading" && !hasStepError) return;
     onClose();
   };
 
@@ -57,16 +57,20 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
   const isSuccess = status === "success";
   const isFailed = status === "failed";
 
+  const hasStepError = steps.some((step) => step.status === "error");
+
+  const canClose = !isProcessing || hasStepError;
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
         aria-label="Close dialog"
-        className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+        className="absolute inset-0 bg-background/80 backdrop-blur-sm"
         role="button"
         tabIndex={0}
-        onClick={!isProcessing ? handleClose : undefined}
+        onClick={canClose ? handleClose : undefined}
         onKeyDown={
-          !isProcessing
+          canClose
             ? (e) => {
                 if (e.key === "Enter" || e.key === " ") {
                   handleClose();
@@ -76,9 +80,9 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
         }
       />
 
-      <div className="relative bg-gray-900 rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-800">
+      <div className="relative bg-background rounded-3xl shadow-2xl max-w-md w-full overflow-hidden border border-gray-800">
         <div className="relative px-6 pt-6 pb-4">
-          {!isProcessing && (
+          {canClose && (
             <button
               className="absolute top-4 right-4 p-2 hover:bg-gray-800 rounded-full transition-colors"
               onClick={handleClose}
@@ -94,20 +98,26 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
               </div>
             )}
 
-            {isFailed && (
+            {(isFailed || hasStepError) && (
               <div className="w-16 h-16 mx-auto mb-4 bg-red-900/30 rounded-full flex items-center justify-center">
                 <XCircle className="w-8 h-8 text-red-400" />
               </div>
             )}
 
             <h2 className="text-xl font-semibold text-white mb-2">
-              {isProcessing && "Processing Transaction"}
+              {isProcessing && !hasStepError && "Processing Transaction"}
+              {isProcessing && hasStepError && "Transaction Error"}
               {isSuccess && "Transaction Complete"}
               {isFailed && "Transaction Failed"}
             </h2>
 
             <p className="text-gray-400 text-sm">
-              {isProcessing && "Please wait while we process your transaction"}
+              {isProcessing &&
+                !hasStepError &&
+                "Please wait while we process your transaction"}
+              {isProcessing &&
+                hasStepError &&
+                "An error occurred during transaction processing"}
               {isSuccess && "Your transaction has been confirmed"}
               {isFailed && "Something went wrong with your transaction"}
             </p>
@@ -232,7 +242,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
         )}
 
         <div className="px-6 pb-6">
-          {isProcessing ? (
+          {isProcessing && !hasStepError ? (
             <div className="text-center">
               <div className="inline-flex items-center gap-2 text-sm text-gray-400">
                 Please don&#39;t close this window
@@ -243,11 +253,17 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
               className={`w-full py-3 px-4 rounded-2xl font-medium text-sm transition-colors ${
                 isSuccess
                   ? "bg-green-600 hover:bg-green-700 text-white"
-                  : "bg-gray-700 hover:bg-gray-600 text-white"
+                  : hasStepError || isFailed
+                    ? "bg-red-600 hover:bg-red-700 text-white"
+                    : "bg-gray-700 hover:bg-gray-600 text-white"
               }`}
               onClick={handleClose}
             >
-              {isSuccess ? "Done" : "Close"}
+              {isSuccess
+                ? "Done"
+                : hasStepError || isFailed
+                  ? "Close"
+                  : "Close"}
             </button>
           )}
         </div>

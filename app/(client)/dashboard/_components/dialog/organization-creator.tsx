@@ -56,16 +56,20 @@ export default function OrganizationCreator({
       return;
     }
 
+    setIsOpen(false);
+    setTransactionOpen(true);
+
     mutation.mutate(
       {
+        nameOrganization: organizationName,
         tokenAddress: tokenAddress,
+        onSuccess: onSuccess,
       },
       {
         onSuccess: () => {
           setIsOpen(false);
           setTokenAddress("");
           setOrganizationName("");
-          onSuccess?.();
         },
       },
     );
@@ -119,7 +123,7 @@ export default function OrganizationCreator({
                 value={tokenAddress}
                 onValueChange={(value) => setTokenAddress(value)}
               >
-                <SelectTrigger className="h-12">
+                <SelectTrigger className="h-12 w-full">
                   <SelectValue placeholder="Select token for payment" />
                 </SelectTrigger>
                 <SelectContent>
@@ -143,7 +147,7 @@ export default function OrganizationCreator({
             </div>
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="flex flex-row justify-between sm:flex-row sm:justify-between w-full items-center">
             <Button
               disabled={isLoading}
               variant="outline"

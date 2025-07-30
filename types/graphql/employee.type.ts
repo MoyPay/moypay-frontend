@@ -8,7 +8,8 @@ export type EmployeeItem = {
   lastUpdated: string;
   organization: string;
   salary: string;
-  status: string;
+  status: boolean;
+  name: string;
 };
 
 export type EmployeeListsResponse = {

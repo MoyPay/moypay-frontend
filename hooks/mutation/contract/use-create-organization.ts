@@ -17,79 +17,85 @@ type Step = {
   error?: string;
 };
 
+const STEP_TEMPLATES: Step[] = [
+  { step: 1, text: "Preparing Transaction", status: "idle" },
+  { step: 2, text: "Creating Organization", status: "idle" },
+  { step: 3, text: "Finalizing", status: "idle" },
+];
+
 export const useCreateOrganization = () => {
   const { address: userAddress } = useAccount();
 
-  const stepTemplates: Step[] = [
-    { step: 1, text: "Preparing transaction", status: "idle" },
-    { step: 4, text: "Creating Organization", status: "idle" },
-    { step: 5, text: "Finalizing", status: "idle" },
-  ];
-
-  const [steps, setSteps] = useState<Step[]>(stepTemplates);
+  const [steps, setSteps] = useState<Step[]>(STEP_TEMPLATES);
   const [txHash, setTxHash] = useState<HexAddress | null>(null);
 
-  const mutation = useMutation({
-    mutationFn: async ({ tokenAddress }: { tokenAddress: HexAddress }) => {
-      try {
-        setSteps(stepTemplates.map((s) => ({ ...s, status: "idle" })));
+  const updateStepStatus = (
+    stepNumber: number,
+    status: Status,
+    error?: string,
+  ) => {
+    setSteps((prev) =>
+      prev.map((step) =>
+        step.step === stepNumber ? { ...step, status, error } : step,
+      ),
+    );
+  };
 
-        if (!userAddress) throw new Error("Invalid parameters");
+  const mutation = useMutation({
+    mutationFn: async ({
+      nameOrganization,
+      tokenAddress,
+      onSuccess,
+    }: {
+      nameOrganization: string;
+      tokenAddress: HexAddress;
+      onSuccess?: () => void;
+    }) => {
+      try {
+        setSteps(STEP_TEMPLATES.map((s) => ({ ...s, status: "idle" })));
+        updateStepStatus(1, "loading");
+
+        if (!userAddress) throw new Error("User not connected");
 
         const factoryAddress = contractAddresses.factory;
 
-        setSteps((prev) =>
-          prev.map((step) =>
-            step.step === 1 ? { ...step, status: "loading" } : step,
-          ),
-        );
+        updateStepStatus(1, "success");
+        updateStepStatus(2, "loading");
 
         const txHash = await writeContract(config, {
           address: factoryAddress,
           abi: FactoryABI,
           functionName: "createOrganization",
-          args: [tokenAddress],
+          args: [tokenAddress, nameOrganization],
         });
-
-        setSteps((prev) =>
-          prev.map((step) =>
-            step.step === 1
-              ? { ...step, status: "success" }
-              : step.step === 2
-                ? { ...step, status: "loading" }
-                : step,
-          ),
-        );
 
         const result = await waitForTransactionReceipt(config, {
           hash: txHash,
         });
 
+        if (!result.status) {
+          throw new Error("Organization creation failed");
+        }
+
         setTxHash(txHash);
 
-        setSteps((prev) =>
-          prev.map((step) =>
-            step.step === 2
-              ? { ...step, status: "success" }
-              : step.step === 3
-                ? { ...step, status: "loading" }
-                : step,
-          ),
-        );
+        updateStepStatus(2, "success");
+        updateStepStatus(3, "loading");
 
         await new Promise((r) => setTimeout(r, 1000));
-        setSteps((prev) =>
-          prev.map((step) =>
-            step.step === 3 ? { ...step, status: "success" } : step,
-          ),
-        );
+
+        updateStepStatus(3, "success");
+
+        onSuccess?.();
 
         return result;
       } catch (e) {
+        const message = (e as Error).message || "Unknown error";
+
         setSteps((prev) =>
           prev.map((step) =>
             step.status === "loading"
-              ? { ...step, status: "error", error: (e as Error).message }
+              ? { ...step, status: "error", error: message }
               : step,
           ),
         );
@@ -97,20 +103,6 @@ export const useCreateOrganization = () => {
       }
     },
   });
-
-  const loadingStates = steps.map((step) => ({
-    text:
-      step.status === "error"
-        ? `❌ ${step.text}: ${step.error}`
-        : step.status === "success"
-          ? `${step.text}`
-          : step.text,
-  }));
-
-  const currentStepIndex =
-    steps.findIndex((s) => s.status === "loading" || s.status === "idle") === -1
-      ? steps.length - 1
-      : steps.findIndex((s) => s.status === "loading" || s.status === "idle");
 
   const dialogStatus = () => {
     if (mutation.isPending) return "loading";
@@ -124,8 +116,6 @@ export const useCreateOrganization = () => {
     steps,
     mutation,
     txHash,
-    loadingStates,
-    currentStepIndex,
     dialogStatus,
   };
 };
