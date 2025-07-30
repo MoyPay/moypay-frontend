@@ -39,4 +39,5 @@ export const PERIOD_TIMES = {
 } as const;
 
 export const urlSubgraph =
-  process.env.NEXT_PUBLIC_API_SUBGRAPH_BASE_SEPOLIA_URL;
+  process.env.NEXT_PUBLIC_API_SUBGRAPH_BASE_SEPOLIA_URL ||
+  "https://indexer.moypay.xyz";

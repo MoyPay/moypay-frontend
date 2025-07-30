@@ -7,7 +7,7 @@ type PageProps = {
 const Page = async (props: PageProps) => {
   const { slug: id } = await props.params;
 
-  return <Organization id={Number(id)} />;
+  return <Organization id={id} />;
 };
 
 export default Page;

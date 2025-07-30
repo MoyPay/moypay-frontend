@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
 import { ArrowUpRight } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 
 import OrganizationCreator from "./organization-creator";
 
@@ -15,11 +16,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { organizationData } from "@/data/organization.data";
+import { useOrganizationListsByOwner } from "@/hooks/query/graphql/use-organization-lists-by-owner";
 
 export default function Dashboard() {
   const { isConnected } = useAccount();
   const [isMounted, setIsMounted] = useState(false);
+  const { data: organizationLists } = useOrganizationListsByOwner();
 
   useEffect(() => {
     setIsMounted(true);
@@ -69,7 +71,7 @@ export default function Dashboard() {
 
         <Separator />
 
-        <Card>
+        <Card className="pb-10">
           <CardHeader className="p-0 pt-5 px-5">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="flex flex-col items-start gap-2">
@@ -83,13 +85,20 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              {organizationData.map((org) => (
+              {organizationLists.map((org) => (
                 <Link
                   key={org.id}
-                  className="p-3 border-2 border-b-muted-foreground rounded-xl flex gap-2 items-center min-w-[140px]"
+                  className="p-3 border-2 border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-xl flex gap-2 items-center min-w-[140px]"
                   href={`/dashboard/organizations/${org.id}`}
                 >
-                  <span className="truncate">{org.name}</span>
+                  <Image
+                    alt={`${org.createdAt} logo`}
+                    className="w-6 h-6"
+                    height={24}
+                    src={`/images/abstract/${Number(org.createdAt) % 36}.jpg`}
+                    width={24}
+                  />
+                  <span className="truncate">Moypay {org.createdAt % 36}</span>
                   <ArrowUpRight className="w-5 h-5" />
                 </Link>
               ))}
@@ -97,7 +106,7 @@ export default function Dashboard() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="pb-10">
           <CardHeader className="p-0 pt-5 px-5">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="flex flex-col items-start gap-2">
@@ -110,13 +119,20 @@ export default function Dashboard() {
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-4">
-              {organizationData.map((org) => (
+              {organizationLists.map((org) => (
                 <Link
                   key={org.id}
-                  className="p-3 border-2 border-b-muted-foreground rounded-xl flex gap-2 items-center min-w-[140px]"
+                  className="p-3 border-2 border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-xl flex gap-2 items-center min-w-[140px]"
                   href={`/dashboard/organizations/${org.id}`}
                 >
-                  <span className="truncate">{org.name}</span>
+                  <Image
+                    alt={`${org.createdAt} logo`}
+                    className="w-6 h-6"
+                    height={24}
+                    src={`/images/abstract/${Number(org.createdAt) % 36}.jpg`}
+                    width={24}
+                  />
+                  <span className="truncate">MoyPay {org.createdAt % 36}</span>
                   <ArrowUpRight className="w-5 h-5" />
                 </Link>
               ))}
