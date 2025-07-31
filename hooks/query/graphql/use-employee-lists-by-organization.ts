@@ -50,7 +50,7 @@ export const useEmployeeListsByOrganization = ({
 
   const cachedData = getCachedData();
 
-  const { data, isLoading, isError, refetch, isFetching, error } =
+  const { isLoading, isError, refetch, isFetching, error } =
     useQuery<EmployeeListsResponse>({
       queryKey: [
         "employeeListsByOrganization",
@@ -106,16 +106,6 @@ export const useEmployeeListsByOrganization = ({
       queryKey: ["employeeListsByOrganization", organizationAddress],
     });
   }, [setCachedData, queryClient, organizationAddress]);
-
-  if (
-    organizationAddress &&
-    cachedData.allItems.length > 0 &&
-    data?.employeeLists.pageInfo.endCursor === null &&
-    !isFetching &&
-    !isFetchingMore
-  ) {
-    setTimeout(() => resetPagination(), 0);
-  }
 
   const hasNextPage = cachedData.pageInfo?.hasNextPage ?? false;
 

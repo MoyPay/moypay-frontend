@@ -46,7 +46,7 @@ export const useOrganizationJoinedListsByEmployee = () => {
 
   const cachedData = getCachedData();
 
-  const { data, isLoading, isError, refetch, isFetching } =
+  const { isLoading, isError, refetch, isFetching } =
     useQuery<OrganizationJoinedListsResponse>({
       queryKey: [
         "organizationJoinedListsByOwner",
@@ -105,16 +105,6 @@ export const useOrganizationJoinedListsByEmployee = () => {
       queryKey: ["organizationJoinedListsByOwner", userAddress],
     });
   }, [setCachedData, queryClient, userAddress]);
-
-  if (
-    userAddress &&
-    cachedData.allItems.length > 0 &&
-    data?.organizationJoinedLists.pageInfo.endCursor === null &&
-    !isFetching &&
-    !isFetchingMore
-  ) {
-    setTimeout(() => resetPagination(), 0);
-  }
 
   const hasNextPage = cachedData.pageInfo?.hasNextPage ?? false;
 

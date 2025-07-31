@@ -46,7 +46,7 @@ export const useOrganizationListsByOwner = () => {
 
   const cachedData = getCachedData();
 
-  const { data, isLoading, isError, refetch, isFetching } =
+  const { isLoading, isError, refetch, isFetching } =
     useQuery<OrganizationListsResponse>({
       queryKey: ["organizationListsByOwner", userAddress, cachedData.endCursor],
       queryFn: async () => {
@@ -98,16 +98,6 @@ export const useOrganizationListsByOwner = () => {
       queryKey: ["organizationListsByOwner", userAddress],
     });
   }, [setCachedData, queryClient, userAddress]);
-
-  if (
-    userAddress &&
-    cachedData.allItems.length > 0 &&
-    data?.organizationLists.pageInfo.endCursor === null &&
-    !isFetching &&
-    !isFetchingMore
-  ) {
-    setTimeout(() => resetPagination(), 0);
-  }
 
   const hasNextPage = cachedData.pageInfo?.hasNextPage ?? false;
 

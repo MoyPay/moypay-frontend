@@ -10,6 +10,9 @@ export type EmployeeItem = {
   salary: string;
   status: boolean;
   name: string;
+  lastCompensationSalary: string;
+  lastSalaryUpdated: number;
+  lastStatusUpdated: number;
 };
 
 export type EmployeeListsResponse = {

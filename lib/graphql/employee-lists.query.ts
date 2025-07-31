@@ -22,6 +22,9 @@ export const queryEmployeeListsByOrganization = (
           salary
           status
           name
+          lastCompensationSalary
+          lastSalaryUpdated
+          lastStatusUpdated
         }
         pageInfo {
           startCursor
@@ -57,6 +60,9 @@ export const queryEmployeeListsByEmployee = (
           salary
           status
           name
+          lastCompensationSalary
+          lastSalaryUpdated
+          lastStatusUpdated
         }
         pageInfo {
           startCursor
@@ -83,6 +89,9 @@ export const queryEmployeeListById = (id: string) => {
         salary
         status
         name
+        lastCompensationSalary
+        lastSalaryUpdated
+        lastStatusUpdated
       }
     }
   `;

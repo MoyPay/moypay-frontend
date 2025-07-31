@@ -50,7 +50,7 @@ export const useEmployeeListsByEmployee = ({
 
   const cachedData = getCachedData();
 
-  const { data, isLoading, isError, refetch, isFetching, error } =
+  const { isLoading, isError, refetch, isFetching, error } =
     useQuery<EmployeeListsResponse>({
       queryKey: [
         "employeeListsByEmployee",
@@ -103,16 +103,6 @@ export const useEmployeeListsByEmployee = ({
       queryKey: ["employeeListsByEmployee", employeeAddress],
     });
   }, [setCachedData, queryClient, employeeAddress]);
-
-  if (
-    employeeAddress &&
-    cachedData.allItems.length > 0 &&
-    data?.employeeLists.pageInfo.endCursor === null &&
-    !isFetching &&
-    !isFetchingMore
-  ) {
-    setTimeout(() => resetPagination(), 0);
-  }
 
   const hasNextPage = cachedData.pageInfo?.hasNextPage ?? false;
 

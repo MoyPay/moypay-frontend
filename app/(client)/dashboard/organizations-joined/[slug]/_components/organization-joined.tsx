@@ -7,12 +7,19 @@ import {
   Building2,
   ArrowLeft,
   ArrowUp,
+  Info,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { normalize } from "@/lib/helper/bignumber";
 import { formatCompactNumber } from "@/lib/helper/number";
 import { formatAddress, urlExplorer } from "@/lib/helper/web3";
@@ -136,110 +143,241 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
   }
 
   return (
-    <div className="w-full h-auto max-w-7xl mx-auto p-4 my-5 2xl:p-10">
-      <div className="flex flex-col gap-6 lg:gap-10">
-        <div className="flex flex-col gap-6 lg:gap-10 w-full">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <div className="flex items-center gap-3 flex-1 min-w-0">
-              <Link
-                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:underline transition-all duration-200"
-                href="/dashboard"
-              >
-                <ArrowLeft />
-              </Link>
-              <Image
-                alt={`Organization ${(org?.createdAt ?? 0) % 36} logo`}
-                className="w-16 h-16 sm:w-18 sm:h-18 flex-shrink-0 rounded-lg"
-                height={72}
-                src={`/images/abstract/${(org?.createdAt ?? 0) % 36}.jpg`}
-                width={72}
-                onError={(e) => {
-                  e.currentTarget.src = "/images/default-org.png";
-                }}
-              />
-              <div className="flex flex-col gap-1 min-w-0 flex-1">
-                <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">
-                  {org?.name}
-                </h1>
-                {org?.organization ? (
-                  <Link
-                    className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:underline transition-all duration-200 w-fit"
-                    href={urlExplorer({
-                      chainId: 128123,
-                      address: org.organization,
-                    })}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <span className="truncate">
-                      {formatAddress(org.organization)}
+    <TooltipProvider>
+      <div className="w-full h-auto max-w-7xl mx-auto p-5 my-5 2xl:p-10">
+        <div className="flex flex-col gap-6 lg:gap-10">
+          <div className="flex flex-col gap-6 lg:gap-10 w-full">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-center gap-3 flex-1 min-w-0">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link
+                      className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:underline transition-all duration-200"
+                      href="/dashboard"
+                    >
+                      <ArrowLeft />
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Back to Dashboard</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Image
+                  alt={`Organization ${(org?.createdAt ?? 0) % 36} logo`}
+                  className="w-16 h-16 sm:w-18 sm:h-18 flex-shrink-0 rounded-lg"
+                  height={72}
+                  src={`/images/abstract/${(org?.createdAt ?? 0) % 36}.jpg`}
+                  width={72}
+                  onError={(e) => {
+                    e.currentTarget.src = "/images/default-org.png";
+                  }}
+                />
+                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                  <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">
+                    {org?.name}
+                  </h1>
+                  {org?.organization ? (
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Link
+                          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:underline transition-all duration-200 w-fit"
+                          href={urlExplorer({
+                            chainId: 128123,
+                            address: org.organization,
+                          })}
+                          rel="noopener noreferrer"
+                          target="_blank"
+                        >
+                          <span className="truncate">
+                            {formatAddress(org.organization)}
+                          </span>
+                          <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
+                        </Link>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>View organization contract on blockchain explorer</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">
+                      No address provided
                     </span>
-                    <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
-                  </Link>
-                ) : (
-                  <span className="text-sm text-muted-foreground">
-                    No address provided
-                  </span>
-                )}
-              </div>
-            </div>
-            <div className="flex gap-2 w-full sm:w-auto">
-              <Link href="/withdraw">
-                <Button className="flex-1 flex items-center justify-center gap-1">
-                  <ArrowUp className="w-5 h-5" />
-                  <span className="ml-2">Withdraw</span>
-                </Button>
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex flex-wrap justify-between gap-4 lg:gap-6">
-            <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
-              <span className="text-sm text-muted-foreground">Period Time</span>
-              <span className="text-3xl sm:text-4xl lg:text-5xl leading-none capitalize">
-                {getPeriodLabel(org?.periodTime ?? "")}
-              </span>
-            </div>
-
-            <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
-              <span className="text-sm text-muted-foreground">Status</span>
-              <div className="flex items-end gap-1">
-                <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
-                  {employee.status === true ? "Active" : "Inactive"}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
-              <span className="text-sm text-muted-foreground">
-                Target Salary This Period
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
-                  ${formatCompactNumber(normalize(employee?.salary ?? "0", 18))}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
-              <span className="text-sm text-muted-foreground">
-                Salary Balance
-              </span>
-              <div className="flex items-center gap-2">
-                <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
-                  $
-                  {getIncrementalSalary(
-                    employee?.salary ?? "0",
-                    org?.periodTime,
-                    org?.createdAt ?? 0,
-                    now,
                   )}
+                </div>
+              </div>
+              <div className="flex gap-2 w-full sm:w-auto">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Link href="/withdraw">
+                      <Button className="flex-1 flex items-center justify-center gap-1">
+                        <ArrowUp className="w-5 h-5" />
+                        <span className="ml-2">Withdraw</span>
+                      </Button>
+                    </Link>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Withdraw your accumulated salary balance</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+
+            <div className="flex flex-wrap justify-between gap-4 lg:gap-6">
+              <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-muted-foreground">
+                    Period Time
+                  </span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-3 h-3 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>
+                        How often salary payments are calculated and distributed
+                      </p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <span className="text-3xl sm:text-4xl lg:text-5xl leading-none capitalize">
+                  {getPeriodLabel(org?.periodTime ?? "")}
                 </span>
               </div>
+
+              <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-muted-foreground">Status</span>
+                  <Tooltip>
+                    <TooltipTrigger>
+                      <Info className="w-3 h-3 text-muted-foreground" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Your current employment status in this organization</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="flex items-end gap-1">
+                  <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
+                    {employee.status === true ? "Active" : "Inactive"}
+                  </span>
+                </div>
+              </div>
+
+              {employee.status === true ? (
+                <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm text-muted-foreground">
+                      Target Salary This Period
+                    </span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-3 h-3 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          Your total salary amount for the current pay period
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
+                      $
+                      {formatCompactNumber(
+                        normalize(employee?.salary ?? "0", 18),
+                      )}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm text-muted-foreground">
+                      Last salary inactive status
+                    </span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-3 h-3 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          The date when your employment status became inactive
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
+                      {new Date(
+                        employee.lastStatusUpdated * 1000,
+                      ).toLocaleDateString()}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {employee.status === true ? (
+                <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm text-muted-foreground">
+                      Salary Balance
+                    </span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-3 h-3 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          Your accumulated salary that can be withdrawn right
+                          now
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
+                      $
+                      {getIncrementalSalary(
+                        employee?.salary ?? "0",
+                        org?.periodTime,
+                        org?.createdAt ?? 0,
+                        now,
+                      )}
+                    </span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
+                  <div className="flex items-center gap-1">
+                    <span className="text-sm text-muted-foreground">
+                      Last Compensation Salary
+                    </span>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <Info className="w-3 h-3 text-muted-foreground" />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          The final salary amount you received before becoming
+                          inactive
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
+                      $
+                      {formatCompactNumber(
+                        normalize(employee?.lastCompensationSalary ?? "0", 18),
+                      )}
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </TooltipProvider>
   );
 }
