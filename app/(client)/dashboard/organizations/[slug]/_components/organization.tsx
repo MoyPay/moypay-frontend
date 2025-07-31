@@ -8,12 +8,16 @@ import {
   Users,
   Building2,
   ArrowLeft,
+  SquarePen,
+  Trash,
+  ArrowDown,
 } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
 import EmployeeCreator from "./dialog/employee-creator";
+import DepositDialog from "./dialog/deposit";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -54,7 +58,7 @@ export default function Organization({ id }: OrganizationProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(Math.floor(Date.now() / 1000));
-    }, 100);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -194,10 +198,22 @@ export default function Organization({ id }: OrganizationProps) {
                 )}
               </div>
             </div>
-            <Button className="w-full sm:w-auto flex-shrink-0">
-              <Settings className="w-5 h-5" />
-              <span className="ml-2">Settings</span>
-            </Button>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <DepositDialog
+                organizationAddress={org?.organization ?? ""}
+                refetch={refetch}
+                trigger={
+                  <Button className="flex-1 flex items-center justify-center gap-1">
+                    <ArrowDown className="w-5 h-5" />
+                    <span className="ml-2">Deposit</span>
+                  </Button>
+                }
+              />
+              <Button className="flex-1 flex items-center justify-center gap-1">
+                <Settings className="w-5 h-5" />
+                <span className="ml-2">Settings</span>
+              </Button>
+            </div>
           </div>
 
           <div className="flex flex-wrap justify-between gap-4 lg:gap-6">
@@ -221,7 +237,7 @@ export default function Organization({ id }: OrganizationProps) {
 
             <div className="flex flex-col gap-2 p-4 rounded-lg border sm:border-0 sm:bg-transparent">
               <span className="text-sm text-muted-foreground">
-                Current Deposited
+                Deposited Balance
               </span>
               <div className="flex items-center gap-2">
                 <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
@@ -255,6 +271,7 @@ export default function Organization({ id }: OrganizationProps) {
                 List Employee
               </h2>
               <EmployeeCreator
+                emp={emp}
                 organizationAddress={(org?.organization as HexAddress) ?? ""}
                 refetch={refetch}
                 resetPagination={resetPagination}
@@ -309,12 +326,12 @@ export default function Organization({ id }: OrganizationProps) {
                 {emp.map((employee) => (
                   <div
                     key={employee.id}
-                    className="p-3 border-2 border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-xl flex flex-col gap-3 min-w-0 cursor-pointer hover:shadow-sm"
+                    className="p-4 border border-muted-foreground hover:border-primary transition-all duration-200 rounded-2xl flex flex-col gap-4 min-w-0 cursor-pointer hover:shadow-md"
                   >
-                    <div className="flex items-center gap-3 w-full">
+                    <div className="flex items-center gap-4 w-full">
                       <Image
                         alt={`Employee ${Number(employee.createdAt) % 36} avatar`}
-                        className="w-12 h-12 rounded-full flex-shrink-0"
+                        className="w-12 h-12 rounded-full flex-shrink-0 object-cover"
                         height={48}
                         src={`/images/abstract2/${Number(employee.createdAt) % 16}.jpg`}
                         width={48}
@@ -323,44 +340,59 @@ export default function Organization({ id }: OrganizationProps) {
                         }}
                       />
                       <div className="flex flex-col min-w-0 flex-1">
-                        <span className="font-semibold text-sm truncate">
+                        <span className="font-semibold text-base truncate">
                           {employee.name || "Unnamed Employee"}
                         </span>
-                        <span className="text-xs text-muted-foreground">
-                          <Link
-                            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground hover:underline transition-all duration-200 w-fit"
-                            href={urlExplorer({
-                              chainId: 128123,
-                              address: employee.employee,
-                            })}
-                            target="_blank"
-                          >
-                            <span className="truncate">
-                              {formatAddress(employee.employee)}
-                            </span>
-                            <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
-                          </Link>
-                        </span>
+                        <Link
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary hover:underline transition-all duration-200 w-fit truncate"
+                          href={urlExplorer({
+                            chainId: 128123,
+                            address: employee.employee,
+                          })}
+                          target="_blank"
+                        >
+                          <span className="truncate">
+                            {formatAddress(employee.employee)}
+                          </span>
+                          <ArrowUpRight className="w-4 h-4 flex-shrink-0" />
+                        </Link>
                       </div>
                     </div>
-                    <div className="flex flex-col gap-2">
-                      <span className="text-xs text-muted-foreground">
+
+                    <div className="flex flex-col gap-1 text-xs text-muted-foreground">
+                      <span>
                         Salary: $
                         {formatCompactNumber(
                           normalize(employee.salary ?? "0", 18),
-                        )}{" "}
+                        )}
                       </span>
-                      <span className="text-xs text-muted-foreground">
+                      <span>
                         Current Salary: $
                         {getIncrementalSalary(
                           employee.salary ?? "0",
                           org?.periodTime as keyof typeof PERIOD_TIMES,
                           org?.createdAt ?? 0,
                           now,
-                        )}{" "}
+                        )}
                       </span>
                     </div>
-                    <Button variant="default">View Details</Button>
+
+                    <div className="flex gap-2 mt-2 w-full">
+                      <Button
+                        className="flex-1 flex items-center justify-center gap-1"
+                        variant="default"
+                      >
+                        <SquarePen className="w-3 h-3" />
+                        <span className="text-xs">Update</span>
+                      </Button>
+                      <Button
+                        className="flex-1 flex items-center justify-center gap-1"
+                        variant="destructive"
+                      >
+                        <Trash className="w-3 h-3" />
+                        <span className="text-xs">Delete</span>
+                      </Button>
+                    </div>
                   </div>
                 ))}
               </div>

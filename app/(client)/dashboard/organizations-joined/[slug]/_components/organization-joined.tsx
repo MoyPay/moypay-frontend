@@ -1,7 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { ArrowUpRight, AlertCircle, Building2, ArrowLeft } from "lucide-react";
+import {
+  ArrowUpRight,
+  AlertCircle,
+  Building2,
+  ArrowLeft,
+  ArrowUp,
+} from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
@@ -36,7 +42,7 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
   useEffect(() => {
     const interval = setInterval(() => {
       setNow(Math.floor(Date.now() / 1000));
-    }, 100);
+    }, 1000);
 
     return () => clearInterval(interval);
   }, []);
@@ -122,7 +128,7 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
             have been deleted or moved.
           </p>
           <Button asChild variant="outline">
-            <Link href="/organizations">Browse Organizations</Link>
+            <Link href="/dashboard">Browse Organizations</Link>
           </Button>
         </div>
       </div>
@@ -176,6 +182,14 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                   </span>
                 )}
               </div>
+            </div>
+            <div className="flex gap-2 w-full sm:w-auto">
+              <Link href="/withdraw">
+                <Button className="flex-1 flex items-center justify-center gap-1">
+                  <ArrowUp className="w-5 h-5" />
+                  <span className="ml-2">Withdraw</span>
+                </Button>
+              </Link>
             </div>
           </div>
 

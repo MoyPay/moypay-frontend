@@ -1,6 +1,7 @@
 "use client";
 
 import { Radio, ScanBarcode, User } from "lucide-react";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,9 +29,11 @@ export default function Home() {
             </span>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Button className="rounded-full bg-blue-600 hover:bg-blue-700 px-10 py-6 text-white text-base sm:text-lg">
-                Get Started
-              </Button>
+              <Link href="/dashboard">
+                <Button className="rounded-full bg-blue-600 hover:bg-blue-700 px-10 py-6 text-white text-base sm:text-lg">
+                  Get Started
+                </Button>
+              </Link>
             </div>
           </div>
         </div>

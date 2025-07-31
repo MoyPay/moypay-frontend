@@ -27,11 +27,10 @@ const STEP_TEMPLATES: Step[] = [
   { step: 1, text: "Preparing Transaction", status: "idle" },
   { step: 2, text: "Aproving Token", status: "idle" },
   { step: 3, text: "Depositing Token", status: "idle" },
-  { step: 4, text: "Creating Employee", status: "idle" },
-  { step: 5, text: "Finalizing", status: "idle" },
+  { step: 4, text: "Finalizing", status: "idle" },
 ];
 
-export const useAddEmployee = () => {
+export const useDepositOrganization = () => {
   const { address: userAddress } = useAccount();
 
   const [steps, setSteps] = useState<Step[]>(STEP_TEMPLATES);
@@ -51,18 +50,10 @@ export const useAddEmployee = () => {
 
   const mutation = useMutation({
     mutationFn: async ({
-      employeeName,
-      employeeAddress,
       salary,
-      startStream,
-      isNow,
       organizationAddress,
     }: {
-      employeeName: string;
-      employeeAddress: HexAddress;
       salary: number;
-      startStream: number;
-      isNow: boolean;
       organizationAddress: HexAddress;
     }) => {
       try {
@@ -105,35 +96,11 @@ export const useAddEmployee = () => {
         updateStepStatus(2, "success");
         updateStepStatus(3, "loading");
 
-        const txHashDeposit = await writeContract(config, {
+        const txHash = await writeContract(config, {
           address: organizationAddress,
           abi: OrganizationABI,
           functionName: "deposit",
           args: [valueToBigInt(denormalizedSalary)],
-        });
-
-        const resultDeposit = await waitForTransactionReceipt(config, {
-          hash: txHashDeposit,
-        });
-
-        if (!resultDeposit.status) {
-          throw new Error("Set salary transaction failed");
-        }
-
-        updateStepStatus(3, "success");
-        updateStepStatus(4, "loading");
-
-        const txHash = await writeContract(config, {
-          address: organizationAddress,
-          abi: OrganizationABI,
-          functionName: "addEmployee",
-          args: [
-            employeeName,
-            employeeAddress,
-            valueToBigInt(denormalizedSalary),
-            valueToBigInt(startStream),
-            Boolean(isNow),
-          ],
         });
 
         const result = await waitForTransactionReceipt(config, {
@@ -146,12 +113,12 @@ export const useAddEmployee = () => {
 
         setTxHash(txHash);
 
-        updateStepStatus(4, "success");
-        updateStepStatus(5, "loading");
+        updateStepStatus(3, "success");
+        updateStepStatus(4, "loading");
 
         await new Promise((r) => setTimeout(r, 1000));
 
-        updateStepStatus(5, "success");
+        updateStepStatus(4, "success");
 
         return result;
       } catch (e) {

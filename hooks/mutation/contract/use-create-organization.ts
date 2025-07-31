@@ -87,6 +87,7 @@ export const useCreateOrganization = () => {
         updateStepStatus(3, "success");
 
         onSuccess?.();
+        window.location.reload();
 
         return result;
       } catch (e) {

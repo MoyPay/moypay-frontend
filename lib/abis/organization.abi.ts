@@ -39,6 +39,11 @@ export const OrganizationABI = [
   },
   {
     inputs: [],
+    name: "EmployeeAlreadyAdded",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "EmployeeNotActive",
     type: "error",
   },
@@ -75,6 +80,11 @@ export const OrganizationABI = [
   },
   {
     inputs: [],
+    name: "StartStreamInvalid",
+    type: "error",
+  },
+  {
+    inputs: [],
     name: "TransferFailed",
     type: "error",
   },
@@ -95,6 +105,25 @@ export const OrganizationABI = [
       },
     ],
     name: "Deposit",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "employee",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "protocol",
+        type: "address",
+      },
+    ],
+    name: "DisableAutoEarn",
     type: "event",
   },
   {
@@ -152,7 +181,44 @@ export const OrganizationABI = [
       {
         indexed: false,
         internalType: "uint256",
+        name: "startStream",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
         name: "timestamp",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "bool",
+        name: "isAutoEarn",
+        type: "bool",
+      },
+    ],
+    name: "EmployeeSalaryAdded",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "employee",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "salary",
+        type: "uint256",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "startStream",
         type: "uint256",
       },
     ],
@@ -176,6 +242,31 @@ export const OrganizationABI = [
       },
     ],
     name: "EmployeeStatusChanged",
+    type: "event",
+  },
+  {
+    anonymous: false,
+    inputs: [
+      {
+        indexed: true,
+        internalType: "address",
+        name: "employee",
+        type: "address",
+      },
+      {
+        indexed: true,
+        internalType: "address",
+        name: "protocol",
+        type: "address",
+      },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "amount",
+        type: "uint256",
+      },
+    ],
+    name: "EnableAutoEarn",
     type: "event",
   },
   {
@@ -225,6 +316,12 @@ export const OrganizationABI = [
         name: "isOfframp",
         type: "bool",
       },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "startStream",
+        type: "uint256",
+      },
     ],
     name: "Withdraw",
     type: "event",
@@ -250,9 +347,80 @@ export const OrganizationABI = [
         name: "isOfframp",
         type: "bool",
       },
+      {
+        indexed: false,
+        internalType: "uint256",
+        name: "startStream",
+        type: "uint256",
+      },
     ],
     name: "WithdrawAll",
     type: "event",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_employee",
+        type: "address",
+      },
+    ],
+    name: "_currentSalary",
+    outputs: [
+      {
+        internalType: "uint256",
+        name: "",
+        type: "uint256",
+      },
+    ],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "string",
+        name: "_name",
+        type: "string",
+      },
+      {
+        internalType: "address",
+        name: "_employee",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_salary",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_startStream",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "isNow",
+        type: "bool",
+      },
+    ],
+    name: "addEmployee",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_user",
+        type: "address",
+      },
+    ],
+    name: "autoEarn",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
   },
   {
     inputs: [
@@ -269,6 +437,29 @@ export const OrganizationABI = [
   },
   {
     inputs: [
+      {
+        internalType: "address",
+        name: "_user",
+        type: "address",
+      },
+      {
+        internalType: "address",
+        name: "_protocol",
+        type: "address",
+      },
+    ],
+    name: "disableAutoEarn",
+    outputs: [],
+    stateMutability: "nonpayable",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_user",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "_protocol",
@@ -313,6 +504,16 @@ export const OrganizationABI = [
       },
       {
         internalType: "uint256",
+        name: "unrealizedSalary",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "startStream",
+        type: "uint256",
+      },
+      {
+        internalType: "uint256",
         name: "createdAt",
         type: "uint256",
       },
@@ -342,6 +543,24 @@ export const OrganizationABI = [
       },
     ],
     stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [
+      {
+        internalType: "address",
+        name: "_protocol",
+        type: "address",
+      },
+      {
+        internalType: "uint256",
+        name: "_eachAmount",
+        type: "uint256",
+      },
+    ],
+    name: "enableAutoEarn",
+    outputs: [],
+    stateMutability: "nonpayable",
     type: "function",
   },
   {
@@ -399,11 +618,6 @@ export const OrganizationABI = [
   {
     inputs: [
       {
-        internalType: "string",
-        name: "_name",
-        type: "string",
-      },
-      {
         internalType: "address",
         name: "_employee",
         type: "address",
@@ -412,6 +626,16 @@ export const OrganizationABI = [
         internalType: "uint256",
         name: "_salary",
         type: "uint256",
+      },
+      {
+        internalType: "uint256",
+        name: "_startStream",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "isNow",
+        type: "bool",
       },
     ],
     name: "setEmployeeSalary",
@@ -501,6 +725,16 @@ export const OrganizationABI = [
         name: "shares",
         type: "uint256",
       },
+      {
+        internalType: "uint256",
+        name: "autoEarnAmount",
+        type: "uint256",
+      },
+      {
+        internalType: "bool",
+        name: "isAutoEarn",
+        type: "bool",
+      },
     ],
     stateMutability: "view",
     type: "function",
@@ -538,6 +772,11 @@ export const OrganizationABI = [
   },
   {
     inputs: [
+      {
+        internalType: "address",
+        name: "_user",
+        type: "address",
+      },
       {
         internalType: "address",
         name: "_protocol",
