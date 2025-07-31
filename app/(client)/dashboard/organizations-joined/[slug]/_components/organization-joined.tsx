@@ -6,11 +6,10 @@ import {
   AlertCircle,
   Building2,
   ArrowLeft,
+  ArrowUp,
   Info,
 } from "lucide-react";
 import Link from "next/link";
-
-import WithdrawDialog from "./withdraw/dialog/withdraw-dialog";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,8 +26,6 @@ import { useOrganizationJoinedListById } from "@/hooks/query/graphql/use-organiz
 import { getPeriodLabel } from "@/lib/helper/period";
 import { useEmployeeListsByEmployee } from "@/hooks/query/graphql/use-employee-lists-by-employee";
 import { useEmployeeSalary } from "@/hooks/query/graphql/use-employee-salary";
-import IncrementalSalary from "@/components/salary/incremental-salary";
-import { useCurrentSalary } from "@/hooks/query/contract/use-current-salary";
 
 interface OrganizationProps {
   id: string;
@@ -50,11 +47,6 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
     employee: employee,
     organization: org,
     updateInterval: 1000,
-  });
-
-  const { currentSalary } = useCurrentSalary({
-    organizationAddress: org?.organization as HexAddress,
-    employeeAddress: employee?.employee as HexAddress,
   });
 
   if (orgLoading || employeesLoading) {
@@ -211,10 +203,12 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
               <div className="flex gap-2 w-full sm:w-auto">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <WithdrawDialog
-                      balance={salaryEmployee.currentBalance}
-                      organizationAddress={org.organization}
-                    />
+                    <Link href="/withdraw">
+                      <Button className="flex-1 flex items-center justify-center gap-1">
+                        <ArrowUp className="w-5 h-5" />
+                        <span className="ml-2">Withdraw</span>
+                      </Button>
+                    </Link>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Withdraw your accumulated salary balance</p>
