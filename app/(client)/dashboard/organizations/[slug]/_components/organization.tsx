@@ -326,7 +326,7 @@ export default function Organization({ id }: OrganizationProps) {
                 {emp.map((employee) => (
                   <div
                     key={employee.id}
-                    className="p-4 border border-muted-foreground hover:border-primary transition-all duration-200 rounded-2xl flex flex-col gap-4 min-w-0 cursor-pointer hover:shadow-md"
+                    className="p-4 border border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-2xl flex flex-col gap-4 min-w-0 cursor-pointer hover:shadow-md"
                   >
                     <div className="flex items-center gap-4 w-full">
                       <Image
