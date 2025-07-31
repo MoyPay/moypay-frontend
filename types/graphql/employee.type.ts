@@ -22,6 +22,7 @@ export type EmployeeItem = {
   streamingActive: boolean;
   totalEarned: string;
   totalWithdrawn: string;
+  unrealizedSalary: string;
 };
 
 export type EmployeeListsResponse = {

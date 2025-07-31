@@ -34,6 +34,7 @@ export const queryEmployeeListsByOrganization = (
           streamingActive
           totalEarned
           totalWithdrawn
+          unrealizedSalary
         }
         pageInfo {
           startCursor
@@ -81,6 +82,7 @@ export const queryEmployeeListsByEmployee = (
           streamingActive
           totalEarned
           totalWithdrawn
+          unrealizedSalary
         }
         pageInfo {
           startCursor
@@ -119,6 +121,7 @@ export const queryEmployeeListById = (id: string) => {
         streamingActive
         totalEarned
         totalWithdrawn
+        unrealizedSalary
       }
     }
   `;

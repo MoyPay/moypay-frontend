@@ -34,7 +34,7 @@ import { formatCompactNumber } from "@/lib/helper/number";
 import { formatAddress, urlExplorer } from "@/lib/helper/web3";
 import { getPeriodLabel } from "@/lib/helper/period";
 import { Badge } from "@/components/ui/badge";
-import IncrementalSalary from "@/components/salary/incremental-salary";
+import { useMultipleEmployeeSalaries } from "@/hooks/query/graphql/use-multiple-employee-salaries";
 
 interface OrganizationProps {
   id: string;
@@ -57,6 +57,11 @@ export default function Organization({ id }: OrganizationProps) {
   } = useEmployeeListsByOrganization({
     organizationAddress: org?.organization ?? "",
     enabled: !!org?.organization,
+  });
+
+  const employeeSalaries = useMultipleEmployeeSalaries({
+    employees: emp,
+    organization: org,
   });
 
   if (orgLoading) {
@@ -248,7 +253,7 @@ export default function Organization({ id }: OrganizationProps) {
                     Period Time
                   </span>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Info className="w-3 h-3 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent>
@@ -269,7 +274,7 @@ export default function Organization({ id }: OrganizationProps) {
                     Total Active Employees
                   </span>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Info className="w-3 h-3 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent>
@@ -293,7 +298,7 @@ export default function Organization({ id }: OrganizationProps) {
                     Deposited Balance
                   </span>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Info className="w-3 h-3 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent>
@@ -320,7 +325,7 @@ export default function Organization({ id }: OrganizationProps) {
                     Outstanding Salary
                   </span>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Info className="w-3 h-3 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent>
@@ -350,7 +355,7 @@ export default function Organization({ id }: OrganizationProps) {
                     List Employee
                   </h2>
                   <Tooltip>
-                    <TooltipTrigger>
+                    <TooltipTrigger asChild>
                       <Info className="w-4 h-4 text-muted-foreground" />
                     </TooltipTrigger>
                     <TooltipContent>
@@ -494,15 +499,10 @@ export default function Organization({ id }: OrganizationProps) {
                         {employee.status === true && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <IncrementalSalary
-                                employeeAddress={
-                                  employee.employee as HexAddress
-                                }
-                                organizationAddress={
-                                  org?.organization as HexAddress
-                                }
-                                text="Accumulated salary: $"
-                              />
+                              <span>
+                                Accumulated salary: $
+                                {employeeSalaries[employee.id]?.currentBalance}
+                              </span>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>

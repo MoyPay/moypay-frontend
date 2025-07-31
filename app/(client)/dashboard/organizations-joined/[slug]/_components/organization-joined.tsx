@@ -26,6 +26,7 @@ import { formatAddress, urlExplorer } from "@/lib/helper/web3";
 import { useOrganizationJoinedListById } from "@/hooks/query/graphql/use-organization-joined-list-by-id";
 import { getPeriodLabel } from "@/lib/helper/period";
 import { useEmployeeListsByEmployee } from "@/hooks/query/graphql/use-employee-lists-by-employee";
+import { useEmployeeSalary } from "@/hooks/query/graphql/use-employee-salary";
 import IncrementalSalary from "@/components/salary/incremental-salary";
 import { useCurrentSalary } from "@/hooks/query/contract/use-current-salary";
 
@@ -44,6 +45,12 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
     isLoading: employeesLoading,
     error: employeesError,
   } = useEmployeeListsByEmployee({ employeeAddress: org?.employee ?? "" });
+
+  const salaryEmployee = useEmployeeSalary({
+    employee: employee,
+    organization: org,
+    updateInterval: 1000,
+  });
 
   const { currentSalary } = useCurrentSalary({
     organizationAddress: org?.organization as HexAddress,
@@ -205,7 +212,7 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <WithdrawDialog
-                      balance={currentSalary}
+                      balance={salaryEmployee.currentBalance}
                       organizationAddress={org.organization}
                     />
                   </TooltipTrigger>
@@ -329,12 +336,15 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                     </Tooltip>
                   </div>
                   <div className="flex items-center gap-2">
-                    <IncrementalSalary
+                    {/* <IncrementalSalary
                       className="text-3xl sm:text-4xl lg:text-5xl leading-none"
                       employeeAddress={employee.employee as HexAddress}
                       organizationAddress={org?.organization as HexAddress}
                       text="$"
-                    />
+                    /> */}
+                    <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
+                      ${salaryEmployee.currentBalance}
+                    </span>
                   </div>
                 </div>
               ) : (
