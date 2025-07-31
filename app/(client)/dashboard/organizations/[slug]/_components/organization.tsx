@@ -13,7 +13,6 @@ import {
   Info,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 import { useAccount } from "wagmi";
 
 import EmployeeCreator from "./dialog/employee-creator";
@@ -33,10 +32,9 @@ import { normalize } from "@/lib/helper/bignumber";
 import { useEmployeeListsByOrganization } from "@/hooks/query/graphql/use-employee-lists-by-organization";
 import { formatCompactNumber } from "@/lib/helper/number";
 import { formatAddress, urlExplorer } from "@/lib/helper/web3";
-import { PERIOD_TIMES } from "@/lib/constants";
 import { getPeriodLabel } from "@/lib/helper/period";
-import { getIncrementalSalary } from "@/lib/helper/salary";
 import { Badge } from "@/components/ui/badge";
+import IncrementalSalary from "@/components/salary/incremental-salary";
 
 interface OrganizationProps {
   id: string;
@@ -60,16 +58,6 @@ export default function Organization({ id }: OrganizationProps) {
     organizationAddress: org?.organization ?? "",
     enabled: !!org?.organization,
   });
-
-  const [now, setNow] = useState(Math.floor(Date.now() / 1000));
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Math.floor(Date.now() / 1000));
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   if (orgLoading) {
     return (
@@ -449,7 +437,7 @@ export default function Organization({ id }: OrganizationProps) {
                           alt={`Employee ${Number(employee.createdAt) % 36} avatar`}
                           className="w-12 h-12 rounded-full flex-shrink-0 object-cover"
                           height={48}
-                          src={`/images/abstract2/${Number(employee.createdAt) % 16}.jpg`}
+                          src={`/images/abstract2/${Number(employee.createdAt) % 15}.jpg`}
                           width={48}
                           onError={(e) => {
                             e.currentTarget.src = "/images/default-avatar.png";
@@ -506,20 +494,15 @@ export default function Organization({ id }: OrganizationProps) {
                         {employee.status === true && (
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span>
-                                Accumulated salary: $
-                                {getIncrementalSalary(
-                                  employee.salary ?? "0",
-                                  org?.periodTime as keyof typeof PERIOD_TIMES,
-                                  employee?.lastBalanceUpdate ||
-                                    employee?.salaryStreamStartTime ||
-                                    employee?.createdAt,
-                                  now,
-                                  employee?.currentSalaryBalance ?? "0",
-                                  employee?.totalWithdrawn ?? "0",
-                                  employee?.streamingActive ?? false,
-                                )}
-                              </span>
+                              <IncrementalSalary
+                                employeeAddress={
+                                  employee.employee as HexAddress
+                                }
+                                organizationAddress={
+                                  org?.organization as HexAddress
+                                }
+                                text="Accumulated salary: $"
+                              />
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>

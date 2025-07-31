@@ -10,7 +10,6 @@ import {
   Info,
 } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -25,8 +24,8 @@ import { formatCompactNumber } from "@/lib/helper/number";
 import { formatAddress, urlExplorer } from "@/lib/helper/web3";
 import { useOrganizationJoinedListById } from "@/hooks/query/graphql/use-organization-joined-list-by-id";
 import { getPeriodLabel } from "@/lib/helper/period";
-import { getIncrementalSalary } from "@/lib/helper/salary";
 import { useEmployeeListsByEmployee } from "@/hooks/query/graphql/use-employee-lists-by-employee";
+import IncrementalSalary from "@/components/salary/incremental-salary";
 
 interface OrganizationProps {
   id: string;
@@ -43,16 +42,6 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
     isLoading: employeesLoading,
     error: employeesError,
   } = useEmployeeListsByEmployee({ employeeAddress: org?.employee ?? "" });
-
-  const [now, setNow] = useState(Math.floor(Date.now() / 1000));
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(Math.floor(Date.now() / 1000));
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, []);
 
   if (orgLoading || employeesLoading) {
     return (
@@ -335,20 +324,12 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                     </Tooltip>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
-                      $
-                      {getIncrementalSalary(
-                        employee?.salary ?? "0",
-                        org?.periodTime,
-                        employee?.lastBalanceUpdate ||
-                          employee?.salaryStreamStartTime ||
-                          employee?.createdAt,
-                        now,
-                        employee?.currentSalaryBalance ?? "0",
-                        employee?.totalWithdrawn ?? "0",
-                        employee?.streamingActive ?? false,
-                      )}
-                    </span>
+                    <IncrementalSalary
+                      className="text-3xl sm:text-4xl lg:text-5xl leading-none"
+                      employeeAddress={employee.employee as HexAddress}
+                      organizationAddress={org?.organization as HexAddress}
+                      text="$"
+                    />
                   </div>
                 </div>
               ) : (
