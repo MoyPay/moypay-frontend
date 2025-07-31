@@ -137,7 +137,7 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
 
           <div className="flex flex-col gap-6 px-6 pb-6">
             <div>
-              <div className="flex flex-col border border-foreground/10 rounded-2xl p-5 bg-background backdrop-blur-sm shadow-sm">
+              <div className="flex flex-col border border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-2xl p-5 bg-background backdrop-blur-sm shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-white/70 text-sm font-medium">
                     You&#39;re depositing
@@ -202,7 +202,7 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
                 </div>
               </div>
 
-              <div className="border border-foreground/10 rounded-2xl p-5 pt-13 bg-background flex items-center -mt-10">
+              <div className="border border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-2xl p-5 pt-13 bg-background flex items-center -mt-10">
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
                     <Image
