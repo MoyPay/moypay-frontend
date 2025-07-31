@@ -25,6 +25,15 @@ export const queryEmployeeListsByOrganization = (
           lastCompensationSalary
           lastSalaryUpdated
           lastStatusUpdated
+          availableBalance
+          currentSalaryBalance
+          lastBalanceUpdate
+          salaryBalanceTimestamp
+          salaryPerSecond
+          salaryStreamStartTime
+          streamingActive
+          totalEarned
+          totalWithdrawn
         }
         pageInfo {
           startCursor
@@ -63,6 +72,15 @@ export const queryEmployeeListsByEmployee = (
           lastCompensationSalary
           lastSalaryUpdated
           lastStatusUpdated
+          availableBalance
+          currentSalaryBalance
+          lastBalanceUpdate
+          salaryBalanceTimestamp
+          salaryPerSecond
+          salaryStreamStartTime
+          streamingActive
+          totalEarned
+          totalWithdrawn
         }
         pageInfo {
           startCursor
@@ -92,6 +110,15 @@ export const queryEmployeeListById = (id: string) => {
         lastCompensationSalary
         lastSalaryUpdated
         lastStatusUpdated
+        availableBalance
+        currentSalaryBalance
+        lastBalanceUpdate
+        salaryBalanceTimestamp
+        salaryPerSecond
+        salaryStreamStartTime
+        streamingActive
+        totalEarned
+        totalWithdrawn
       }
     }
   `;

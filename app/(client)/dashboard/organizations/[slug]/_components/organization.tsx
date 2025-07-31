@@ -511,8 +511,13 @@ export default function Organization({ id }: OrganizationProps) {
                                 {getIncrementalSalary(
                                   employee.salary ?? "0",
                                   org?.periodTime as keyof typeof PERIOD_TIMES,
-                                  org?.createdAt ?? 0,
+                                  employee?.lastBalanceUpdate ||
+                                    employee?.salaryStreamStartTime ||
+                                    employee?.createdAt,
                                   now,
+                                  employee?.currentSalaryBalance ?? "0",
+                                  employee?.totalWithdrawn ?? "0",
+                                  employee?.streamingActive ?? false,
                                 )}
                               </span>
                             </TooltipTrigger>

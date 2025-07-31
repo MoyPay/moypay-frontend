@@ -1,7 +1,7 @@
 import { PageInfo } from "./graphql.type";
 
 export type EmployeeItem = {
-  createdAt: string;
+  createdAt: number;
   employee: string;
   id: string;
   lastTransaction: string;
@@ -13,6 +13,15 @@ export type EmployeeItem = {
   lastCompensationSalary: string;
   lastSalaryUpdated: number;
   lastStatusUpdated: number;
+  availableBalance: string;
+  currentSalaryBalance: string;
+  lastBalanceUpdate: number;
+  salaryBalanceTimestamp: number;
+  salaryPerSecond: string;
+  salaryStreamStartTime: number;
+  streamingActive: boolean;
+  totalEarned: string;
+  totalWithdrawn: string;
 };
 
 export type EmployeeListsResponse = {
