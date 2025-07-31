@@ -22,7 +22,7 @@ export const useCurrentSalary = ({
   });
 
   const currentSalary = data
-    ? parseFloat(normalize(Number(data), 18)).toFixed(2)
+    ? parseFloat(normalize(Number(data), 18)).toFixed(3)
     : "0.00";
 
   return {

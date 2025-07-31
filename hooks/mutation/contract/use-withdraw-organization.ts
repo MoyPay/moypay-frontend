@@ -2,6 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import { Address } from "viem";
 
 import { config } from "@/lib/wagmi";
 import { OrganizationABI } from "@/lib/abis/organization.abi";
@@ -19,13 +20,11 @@ type Step = {
 
 const STEP_TEMPLATES: Step[] = [
   { step: 1, text: "Preparing Transaction", status: "idle" },
-  // { step: 2, text: "Aproving Token", status: "idle" },
-  // { step: 3, text: "Depositing Token", status: "idle" },
-  { step: 2, text: "Creating Employee", status: "idle" },
+  { step: 2, text: "Withdrawing Token", status: "idle" },
   { step: 3, text: "Finalizing", status: "idle" },
 ];
 
-export const useAddEmployee = () => {
+export const useWithdrawOrganization = () => {
   const { address: userAddress } = useAccount();
 
   const [steps, setSteps] = useState<Step[]>(STEP_TEMPLATES);
@@ -45,19 +44,13 @@ export const useAddEmployee = () => {
 
   const mutation = useMutation({
     mutationFn: async ({
-      employeeName,
-      employeeAddress,
-      salary,
-      startStream,
-      isNow,
+      amount,
       organizationAddress,
+      isOffRamp = false,
     }: {
-      employeeName: string;
-      employeeAddress: HexAddress;
-      salary: number;
-      startStream: number;
-      isNow: boolean;
+      amount: number;
       organizationAddress: HexAddress;
+      isOffRamp: boolean;
     }) => {
       try {
         setSteps(STEP_TEMPLATES.map((s) => ({ ...s, status: "idle" })));
@@ -66,68 +59,16 @@ export const useAddEmployee = () => {
 
         if (!userAddress) throw new Error("User not connected");
 
-        const denormalizedSalary = denormalize(salary, 18);
-        // const mockUSDC = contractAddresses.mockUSDC;
+        const denormalizedAmount = denormalize(amount, 18);
 
         updateStepStatus(1, "success");
         updateStepStatus(2, "loading");
 
-        // const allowance = await readContract(config, {
-        //   address: mockUSDC,
-        //   abi: erc20Abi,
-        //   functionName: "allowance",
-        //   args: [userAddress, organizationAddress],
-        // });
-
-        // if (Number(allowance) < Number(denormalizedSalary)) {
-        //   const approveTxHash = await writeContract(config, {
-        //     address: mockUSDC,
-        //     abi: erc20Abi,
-        //     functionName: "approve",
-        //     args: [organizationAddress, valueToBigInt(denormalizedSalary)],
-        //   });
-
-        //   const receipt = await waitForTransactionReceipt(config, {
-        //     hash: approveTxHash,
-        //   });
-
-        //   if (!receipt.status) {
-        //     throw new Error("Approval transaction failed");
-        //   }
-        // }
-
-        // updateStepStatus(2, "success");
-        // updateStepStatus(3, "loading");
-
-        // const txHashDeposit = await writeContract(config, {
-        //   address: organizationAddress,
-        //   abi: OrganizationABI,
-        //   functionName: "deposit",
-        //   args: [valueToBigInt(denormalizedSalary)],
-        // });
-
-        // const resultDeposit = await waitForTransactionReceipt(config, {
-        //   hash: txHashDeposit,
-        // });
-
-        // if (!resultDeposit.status) {
-        //   throw new Error("Set salary transaction failed");
-        // }
-
-        // updateStepStatus(2, "success");
-        // updateStepStatus(3, "loading");
-
         const txHash = await writeContract(config, {
-          address: organizationAddress,
+          address: organizationAddress as Address,
           abi: OrganizationABI,
-          functionName: "addEmployee",
-          args: [
-            employeeName,
-            employeeAddress,
-            valueToBigInt(denormalizedSalary),
-            valueToBigInt(startStream),
-            Boolean(isNow),
-          ],
+          functionName: "withdraw",
+          args: [valueToBigInt(denormalizedAmount), isOffRamp],
         });
 
         const result = await waitForTransactionReceipt(config, {
@@ -135,7 +76,7 @@ export const useAddEmployee = () => {
         });
 
         if (!result.status) {
-          throw new Error("Set salary transaction failed");
+          throw new Error("Set amount transaction failed");
         }
 
         setTxHash(txHash);
