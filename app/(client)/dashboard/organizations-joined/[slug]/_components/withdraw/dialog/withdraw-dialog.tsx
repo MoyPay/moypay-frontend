@@ -17,11 +17,13 @@ import {
 export type WithdrawDialogProps = {
   balance: string;
   organizationAddress: string;
+  onSuccess?: () => void;
 };
 
 export default function WithdrawDialog({
   balance,
   organizationAddress,
+  onSuccess,
 }: WithdrawDialogProps) {
   return (
     <Dialog>
@@ -41,6 +43,7 @@ export default function WithdrawDialog({
             <WithdrawTabs
               balance={balance}
               organizationAddress={organizationAddress}
+              onSuccess={onSuccess}
             />
           </div>
         </div>

@@ -8,6 +8,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 export function WithdrawTabs({
   balance,
   organizationAddress,
+  onSuccess,
 }: WithdrawDialogProps) {
   return (
     <div className="flex w-full max-w-md flex-col gap-6">
@@ -19,10 +20,12 @@ export function WithdrawTabs({
         <WalletTab
           balance={balance}
           organizationAddress={organizationAddress}
+          onSuccess={onSuccess}
         />
         <OffRampTab
           balance={balance}
           organizationAddress={organizationAddress}
+          onSuccess={onSuccess}
         />
       </Tabs>
     </div>

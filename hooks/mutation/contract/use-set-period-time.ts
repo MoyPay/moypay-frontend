@@ -2,11 +2,9 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useAccount } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
-import { Address } from "viem";
 
 import { config } from "@/lib/wagmi";
 import { OrganizationABI } from "@/lib/abis/organization.abi";
-import { denormalize, valueToBigInt } from "@/lib/helper/bignumber";
 
 type Status = "idle" | "loading" | "success" | "error";
 type HexAddress = `0x${string}`;
@@ -20,15 +18,11 @@ type Step = {
 
 const STEP_TEMPLATES: Step[] = [
   { step: 1, text: "Preparing Transaction", status: "idle" },
-  { step: 2, text: "Withdrawing Token", status: "idle" },
+  { step: 2, text: "Updating Period Time", status: "idle" },
   { step: 3, text: "Finalizing", status: "idle" },
 ];
 
-export const useWithdrawOrganization = ({
-  onSuccess,
-}: {
-  onSuccess?: () => void;
-}) => {
+export const useSetPeriodTime = () => {
   const { address: userAddress } = useAccount();
 
   const [steps, setSteps] = useState<Step[]>(STEP_TEMPLATES);
@@ -48,31 +42,28 @@ export const useWithdrawOrganization = ({
 
   const mutation = useMutation({
     mutationFn: async ({
-      amount,
       organizationAddress,
-      isOffRamp = false,
+      periodTime,
+      onSuccess,
     }: {
-      amount: number;
       organizationAddress: HexAddress;
-      isOffRamp: boolean;
+      periodTime: number;
+      onSuccess?: () => void;
     }) => {
       try {
         setSteps(STEP_TEMPLATES.map((s) => ({ ...s, status: "idle" })));
-
         updateStepStatus(1, "loading");
 
         if (!userAddress) throw new Error("User not connected");
-
-        const denormalizedAmount = denormalize(amount, 18);
 
         updateStepStatus(1, "success");
         updateStepStatus(2, "loading");
 
         const txHash = await writeContract(config, {
-          address: organizationAddress as Address,
+          address: organizationAddress,
           abi: OrganizationABI,
-          functionName: "withdraw",
-          args: [valueToBigInt(denormalizedAmount), isOffRamp],
+          functionName: "setPeriodTime",
+          args: [BigInt(periodTime)],
         });
 
         const result = await waitForTransactionReceipt(config, {
@@ -80,7 +71,7 @@ export const useWithdrawOrganization = ({
         });
 
         if (!result.status) {
-          throw new Error("Set amount transaction failed");
+          throw new Error("Period time update failed");
         }
 
         setTxHash(txHash);

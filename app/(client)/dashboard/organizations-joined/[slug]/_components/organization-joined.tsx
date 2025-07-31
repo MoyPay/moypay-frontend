@@ -6,10 +6,11 @@ import {
   AlertCircle,
   Building2,
   ArrowLeft,
-  ArrowUp,
   Info,
 } from "lucide-react";
 import Link from "next/link";
+
+import WithdrawDialog from "./withdraw/dialog/withdraw-dialog";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -36,11 +37,13 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
     data: org,
     isLoading: orgLoading,
     error: orgError,
+    refetch,
   } = useOrganizationJoinedListById({ id });
   const {
     data: employee,
     isLoading: employeesLoading,
     error: employeesError,
+    resetPagination,
   } = useEmployeeListsByEmployee({ employeeAddress: org?.employee ?? "" });
 
   const salaryEmployee = useEmployeeSalary({
@@ -203,12 +206,14 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
               <div className="flex gap-2 w-full sm:w-auto">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Link href="/withdraw">
-                      <Button className="flex-1 flex items-center justify-center gap-1">
-                        <ArrowUp className="w-5 h-5" />
-                        <span className="ml-2">Withdraw</span>
-                      </Button>
-                    </Link>
+                    <WithdrawDialog
+                      balance={salaryEmployee.currentBalance}
+                      organizationAddress={org?.organization ?? ""}
+                      onSuccess={() => {
+                        resetPagination();
+                        refetch();
+                      }}
+                    />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Withdraw your accumulated salary balance</p>
@@ -330,12 +335,6 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                     </Tooltip>
                   </div>
                   <div className="flex items-center gap-2">
-                    {/* <IncrementalSalary
-                      className="text-3xl sm:text-4xl lg:text-5xl leading-none"
-                      employeeAddress={employee.employee as HexAddress}
-                      organizationAddress={org?.organization as HexAddress}
-                      text="$"
-                    /> */}
                     <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
                       ${salaryEmployee.currentBalance}
                     </span>

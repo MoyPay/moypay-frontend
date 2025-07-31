@@ -18,6 +18,7 @@ import { useAccount } from "wagmi";
 import EmployeeCreator from "./dialog/employee-creator";
 import DepositDialog from "./dialog/deposit";
 import ModifyEmployee from "./dialog/modify-employee";
+import OrganizationSettings from "./dialog/organization-settings";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -234,10 +235,17 @@ export default function Organization({ id }: OrganizationProps) {
                 </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button className="flex-1 flex items-center justify-center gap-1">
-                      <Settings className="w-5 h-5" />
-                      <span className="ml-2">Settings</span>
-                    </Button>
+                    <OrganizationSettings
+                      currentPeriodTime={org?.periodTime}
+                      organizationAddress={org?.organization ?? ""}
+                      trigger={
+                        <Button className="flex-1 flex items-center justify-center gap-1">
+                          <Settings className="w-5 h-5" />
+                          <span className="ml-2">Settings</span>
+                        </Button>
+                      }
+                      onSuccess={refetch}
+                    />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Configure organization settings</p>

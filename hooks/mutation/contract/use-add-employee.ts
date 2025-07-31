@@ -1,11 +1,17 @@
 import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useAccount } from "wagmi";
-import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
+import {
+  readContract,
+  waitForTransactionReceipt,
+  writeContract,
+} from "wagmi/actions";
+import { erc20Abi } from "viem";
 
 import { config } from "@/lib/wagmi";
 import { OrganizationABI } from "@/lib/abis/organization.abi";
 import { denormalize, valueToBigInt } from "@/lib/helper/bignumber";
+import { contractAddresses } from "@/lib/constants";
 
 type Status = "idle" | "loading" | "success" | "error";
 type HexAddress = `0x${string}`;
@@ -19,10 +25,10 @@ type Step = {
 
 const STEP_TEMPLATES: Step[] = [
   { step: 1, text: "Preparing Transaction", status: "idle" },
-  // { step: 2, text: "Aproving Token", status: "idle" },
-  // { step: 3, text: "Depositing Token", status: "idle" },
-  { step: 2, text: "Creating Employee", status: "idle" },
-  { step: 3, text: "Finalizing", status: "idle" },
+  { step: 2, text: "Aproving Token", status: "idle" },
+  { step: 3, text: "Depositing Token", status: "idle" },
+  { step: 4, text: "Creating Employee", status: "idle" },
+  { step: 5, text: "Finalizing", status: "idle" },
 ];
 
 export const useAddEmployee = () => {
@@ -67,55 +73,55 @@ export const useAddEmployee = () => {
         if (!userAddress) throw new Error("User not connected");
 
         const denormalizedSalary = denormalize(salary, 18);
-        // const mockUSDC = contractAddresses.mockUSDC;
+        const mockUSDC = contractAddresses.mockUSDC;
 
         updateStepStatus(1, "success");
         updateStepStatus(2, "loading");
 
-        // const allowance = await readContract(config, {
-        //   address: mockUSDC,
-        //   abi: erc20Abi,
-        //   functionName: "allowance",
-        //   args: [userAddress, organizationAddress],
-        // });
+        const allowance = await readContract(config, {
+          address: mockUSDC,
+          abi: erc20Abi,
+          functionName: "allowance",
+          args: [userAddress, organizationAddress],
+        });
 
-        // if (Number(allowance) < Number(denormalizedSalary)) {
-        //   const approveTxHash = await writeContract(config, {
-        //     address: mockUSDC,
-        //     abi: erc20Abi,
-        //     functionName: "approve",
-        //     args: [organizationAddress, valueToBigInt(denormalizedSalary)],
-        //   });
+        if (Number(allowance) < Number(denormalizedSalary)) {
+          const approveTxHash = await writeContract(config, {
+            address: mockUSDC,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [organizationAddress, valueToBigInt(denormalizedSalary)],
+          });
 
-        //   const receipt = await waitForTransactionReceipt(config, {
-        //     hash: approveTxHash,
-        //   });
+          const receipt = await waitForTransactionReceipt(config, {
+            hash: approveTxHash,
+          });
 
-        //   if (!receipt.status) {
-        //     throw new Error("Approval transaction failed");
-        //   }
-        // }
+          if (!receipt.status) {
+            throw new Error("Approval transaction failed");
+          }
+        }
 
-        // updateStepStatus(2, "success");
-        // updateStepStatus(3, "loading");
+        updateStepStatus(2, "success");
+        updateStepStatus(3, "loading");
 
-        // const txHashDeposit = await writeContract(config, {
-        //   address: organizationAddress,
-        //   abi: OrganizationABI,
-        //   functionName: "deposit",
-        //   args: [valueToBigInt(denormalizedSalary)],
-        // });
+        const txHashDeposit = await writeContract(config, {
+          address: organizationAddress,
+          abi: OrganizationABI,
+          functionName: "deposit",
+          args: [valueToBigInt(denormalizedSalary)],
+        });
 
-        // const resultDeposit = await waitForTransactionReceipt(config, {
-        //   hash: txHashDeposit,
-        // });
+        const resultDeposit = await waitForTransactionReceipt(config, {
+          hash: txHashDeposit,
+        });
 
-        // if (!resultDeposit.status) {
-        //   throw new Error("Set salary transaction failed");
-        // }
+        if (!resultDeposit.status) {
+          throw new Error("Set salary transaction failed");
+        }
 
-        // updateStepStatus(2, "success");
-        // updateStepStatus(3, "loading");
+        updateStepStatus(3, "success");
+        updateStepStatus(4, "loading");
 
         const txHash = await writeContract(config, {
           address: organizationAddress,
@@ -140,12 +146,12 @@ export const useAddEmployee = () => {
 
         setTxHash(txHash);
 
-        updateStepStatus(2, "success");
-        updateStepStatus(3, "loading");
+        updateStepStatus(4, "success");
+        updateStepStatus(5, "loading");
 
         await new Promise((r) => setTimeout(r, 1000));
 
-        updateStepStatus(3, "success");
+        updateStepStatus(5, "success");
 
         return result;
       } catch (e) {

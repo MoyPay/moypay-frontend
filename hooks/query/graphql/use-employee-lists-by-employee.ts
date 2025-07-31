@@ -3,8 +3,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { request } from "graphql-request";
 
 import { urlSubgraph } from "@/lib/constants";
-import { EmployeeListsResponse } from "@/types/graphql/employee.type";
 import { queryEmployeeListsByEmployee } from "@/lib/graphql/employee-lists.query";
+import { EmployeeListsResponse } from "@/types/graphql/employee.type";
 
 type CachedEmployeeData = {
   allItems: EmployeeListsResponse["employeeLists"]["items"];
@@ -12,7 +12,6 @@ type CachedEmployeeData = {
   totalCount: number;
   pageInfo: EmployeeListsResponse["employeeLists"]["pageInfo"];
 };
-
 export const useEmployeeListsByEmployee = ({
   employeeAddress,
   enabled,
@@ -80,9 +79,28 @@ export const useEmployeeListsByEmployee = ({
         return result;
       },
       enabled: !!employeeAddress || enabled,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 30 * 60 * 1000,
+      gcTime: 60 * 60 * 1000,
       refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
     });
+
+  const keepCacheAlive = useCallback(() => {
+    const data = getCachedData();
+
+    if (data.allItems.length > 0) {
+      queryClient.setQueryData(cacheKey, data, {
+        updatedAt: Date.now(),
+      });
+    }
+  }, [getCachedData, queryClient, cacheKey]);
+
+  useMemo(() => {
+    const interval = setInterval(keepCacheAlive, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [keepCacheAlive]);
 
   const resetPagination = useCallback(() => {
     const resetData: CachedEmployeeData = {

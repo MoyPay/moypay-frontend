@@ -18,6 +18,7 @@ import TransactionDialog from "@/components/dialog/dialog-transactions";
 export const OffRampTab = ({
   balance,
   organizationAddress,
+  onSuccess,
 }: WithdrawDialogProps) => {
   const [withdrawMethod, setWithdrawMethod] = useState<null | {
     type: "visa" | "bank";
@@ -28,7 +29,9 @@ export const OffRampTab = ({
   const [error, setError] = useState<string | null>(null);
   const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
 
-  const { mutation, dialogStatus, steps, txHash } = useWithdrawOrganization();
+  const { mutation, dialogStatus, steps, txHash } = useWithdrawOrganization({
+    onSuccess,
+  });
 
   const [showDialog, setShowDialog] = useState(false);
 

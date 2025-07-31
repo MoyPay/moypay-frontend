@@ -25,13 +25,11 @@ export const useMultipleEmployeeSalaries = ({
     Record<string, EmployeeSalaryData>
   >({});
 
-  // Memoize stable values to prevent infinite re-renders
   const periodTime = useMemo(
     () => organization?.periodTime,
     [organization?.periodTime],
   );
 
-  // Create a stable reference for employees data
   const stableEmployees = useMemo(
     () => employees,
     [
@@ -65,7 +63,6 @@ export const useMultipleEmployeeSalaries = ({
         }
       });
 
-      // Only update state if the values have actually changed
       setEmployeeSalaries((prevSalaries) => {
         const hasChanged = Object.keys(newSalaries).some((id) => {
           const prev = prevSalaries[id];

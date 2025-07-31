@@ -82,9 +82,28 @@ export const useOrganizationJoinedListsByEmployee = () => {
         return result;
       },
       enabled: !!userAddress,
-      staleTime: 5 * 60 * 1000,
+      staleTime: 30 * 60 * 1000,
+      gcTime: 60 * 60 * 1000,
       refetchOnWindowFocus: false,
+      refetchOnMount: false,
+      refetchOnReconnect: false,
     });
+
+  const keepCacheAlive = useCallback(() => {
+    const data = getCachedData();
+
+    if (data.allItems.length > 0) {
+      queryClient.setQueryData(cacheKey, data, {
+        updatedAt: Date.now(),
+      });
+    }
+  }, [getCachedData, queryClient, cacheKey]);
+
+  useMemo(() => {
+    const interval = setInterval(keepCacheAlive, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [keepCacheAlive]);
 
   const resetPagination = useCallback(() => {
     const resetData: CachedOrganizationData = {

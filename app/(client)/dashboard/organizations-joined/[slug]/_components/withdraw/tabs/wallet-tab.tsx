@@ -14,11 +14,14 @@ import { formatNumberWithComma } from "@/lib/helper/formatted";
 export const WalletTab = ({
   balance,
   organizationAddress,
+  onSuccess,
 }: WithdrawDialogProps) => {
   const [amount, setAmount] = useState<string>("");
   const [rawAmount, setRawAmount] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
-  const { mutation, dialogStatus, steps, txHash } = useWithdrawOrganization();
+  const { mutation, dialogStatus, steps, txHash } = useWithdrawOrganization({
+    onSuccess,
+  });
   const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
