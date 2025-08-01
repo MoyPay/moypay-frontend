@@ -15,7 +15,7 @@ type EmployeeSalaryData = {
 export const useMultipleEmployeeSalaries = ({
   employees,
   organization,
-  updateInterval = 1000,
+  updateInterval = 2000,
 }: {
   employees: EmployeeItem[];
   organization?: OrganizationItem;

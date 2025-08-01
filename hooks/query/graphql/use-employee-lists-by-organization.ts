@@ -1,209 +1,72 @@
-import { useState, useCallback, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { request } from "graphql-request";
 
 import { urlSubgraph } from "@/lib/constants";
 import { queryEmployeeListsByOrganization } from "@/lib/graphql/employee-lists.query";
 import { EmployeeListsResponse } from "@/types/graphql/employee.type";
 
-type CachedEmployeeData = {
-  allItems: EmployeeListsResponse["employeeLists"]["items"];
-  endCursor: string | null;
-  totalCount: number;
-  pageInfo: EmployeeListsResponse["employeeLists"]["pageInfo"];
-};
-
 export const useEmployeeListsByOrganization = ({
   organizationAddress,
-  enabled,
+  enabled = true,
 }: {
   organizationAddress: string;
   enabled?: boolean;
 }) => {
-  const queryClient = useQueryClient();
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useInfiniteQuery<EmployeeListsResponse>({
+    queryKey: ["employeeListsByOrganization", organizationAddress],
+    queryFn: async ({ pageParam }: { pageParam?: unknown }) => {
+      if (!organizationAddress) throw new Error("Address is required");
 
-  const cacheKey = ["employeeListsAccumulated", organizationAddress];
-
-  const getCachedData = useCallback((): CachedEmployeeData => {
-    return (
-      queryClient.getQueryData(cacheKey) || {
-        allItems: [],
-        endCursor: null,
-        totalCount: 0,
-        pageInfo: {
-          hasNextPage: false,
-          hasPreviousPage: false,
-          startCursor: "",
-          endCursor: "",
-        },
-      }
-    );
-  }, [queryClient, cacheKey]);
-
-  const setCachedData = useCallback(
-    (data: CachedEmployeeData) => {
-      queryClient.setQueryData(cacheKey, data);
+      return await request<EmployeeListsResponse>(
+        urlSubgraph,
+        queryEmployeeListsByOrganization(
+          organizationAddress,
+          pageParam as string | null,
+        ),
+      );
     },
-    [queryClient, cacheKey],
-  );
+    initialPageParam: null,
+    getNextPageParam: (lastPage) =>
+      lastPage.employeeLists.pageInfo.hasNextPage
+        ? lastPage.employeeLists.pageInfo.endCursor
+        : undefined,
+    enabled: !!organizationAddress && enabled,
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 
-  const cachedData = getCachedData();
+  const allItems =
+    data?.pages.flatMap((page) => page.employeeLists.items) ?? [];
 
-  const { isLoading, isError, refetch, isFetching, error } =
-    useQuery<EmployeeListsResponse>({
-      queryKey: [
-        "employeeListsByOrganization",
-        organizationAddress,
-        cachedData.endCursor,
-      ],
-      queryFn: async () => {
-        if (!organizationAddress) {
-          throw new Error("Address is required");
-        }
+  const totalCount = data?.pages[0]?.employeeLists.totalCount ?? 0;
+  const pageInfo = data?.pages.at(-1)?.employeeLists.pageInfo;
 
-        const result = await request<EmployeeListsResponse>(
-          urlSubgraph,
-          queryEmployeeListsByOrganization(
-            organizationAddress,
-            cachedData.endCursor,
-          ),
-        );
-
-        const currentCached = getCachedData();
-        const newCachedData: CachedEmployeeData = {
-          allItems: [...currentCached.allItems, ...result.employeeLists.items],
-          endCursor: result.employeeLists.pageInfo.endCursor,
-          totalCount: result.employeeLists.totalCount,
-          pageInfo: result.employeeLists.pageInfo,
-        };
-
-        setCachedData(newCachedData);
-
-        return result;
-      },
-      enabled: !!organizationAddress || enabled,
-      staleTime: 30 * 60 * 1000,
-      gcTime: 60 * 60 * 1000,
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    });
-
-  const keepCacheAlive = useCallback(() => {
-    const data = getCachedData();
-
-    if (data.allItems.length > 0) {
-      queryClient.setQueryData(cacheKey, data, {
-        updatedAt: Date.now(),
-      });
-    }
-  }, [getCachedData, queryClient, cacheKey]);
-
-  useMemo(() => {
-    const interval = setInterval(keepCacheAlive, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [keepCacheAlive]);
-
-  const resetPagination = useCallback(() => {
-    const resetData: CachedEmployeeData = {
-      allItems: [],
-      endCursor: null,
-      totalCount: 0,
-      pageInfo: {
-        hasNextPage: false,
-        hasPreviousPage: false,
-        startCursor: "",
-        endCursor: "",
-      },
-    };
-
-    setCachedData(resetData);
-
-    queryClient.invalidateQueries({
-      queryKey: ["employeeListsByOrganization", organizationAddress],
-    });
-  }, [setCachedData, queryClient, organizationAddress]);
-
-  const hasNextPage = cachedData.pageInfo?.hasNextPage ?? false;
-
-  const fetchNextPage = useCallback(async () => {
-    if (!hasNextPage || !organizationAddress || isFetching || isFetchingMore) {
-      return;
-    }
-    setIsFetchingMore(true);
-    try {
-      await refetch();
-    } finally {
-      setIsFetchingMore(false);
-    }
-  }, [hasNextPage, organizationAddress, refetch, isFetching, isFetchingMore]);
-
-  const fetchAllPages = useCallback(async () => {
-    if (!organizationAddress || isFetching || isFetchingMore) {
-      return;
-    }
-
-    setIsFetchingMore(true);
-    try {
-      let currentData = getCachedData();
-      let cursor = currentData.endCursor;
-      let hasMore = currentData.pageInfo?.hasNextPage ?? true;
-
-      while (hasMore) {
-        const result = await request<EmployeeListsResponse>(
-          urlSubgraph,
-          queryEmployeeListsByOrganization(organizationAddress, cursor),
-        );
-
-        currentData = {
-          allItems: [...currentData.allItems, ...result.employeeLists.items],
-          endCursor: result.employeeLists.pageInfo.endCursor,
-          totalCount: result.employeeLists.totalCount,
-          pageInfo: result.employeeLists.pageInfo,
-        };
-        setCachedData(currentData);
-
-        cursor = result.employeeLists.pageInfo.endCursor;
-        hasMore = result.employeeLists.pageInfo.hasNextPage;
+  return {
+    data: allItems,
+    isLoading: isLoading || isFetchingNextPage,
+    isError,
+    error,
+    hasNextPage,
+    fetchNextPage,
+    fetchAllPages: async () => {
+      while (hasNextPage) {
+        await fetchNextPage();
       }
-    } finally {
-      setIsFetchingMore(false);
-    }
-  }, [
-    organizationAddress,
-    isFetching,
-    isFetchingMore,
-    getCachedData,
-    setCachedData,
-  ]);
-
-  return useMemo(
-    () => ({
-      data: cachedData.allItems,
-      isLoading: isLoading || isFetchingMore,
-      isError,
-      hasNextPage,
-      fetchNextPage,
-      fetchAllPages,
-      totalCount: cachedData.totalCount,
-      pageInfo: cachedData.pageInfo,
-      error,
-      resetPagination,
-    }),
-    [
-      cachedData.allItems,
-      cachedData.totalCount,
-      cachedData.pageInfo,
-      isLoading,
-      isFetchingMore,
-      isError,
-      hasNextPage,
-      fetchNextPage,
-      fetchAllPages,
-      error,
-      resetPagination,
-    ],
-  );
+    },
+    totalCount,
+    pageInfo,
+    refetch,
+  };
 };

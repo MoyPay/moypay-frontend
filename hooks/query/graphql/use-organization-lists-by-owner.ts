@@ -1,5 +1,4 @@
-import { useState, useCallback, useMemo } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { request } from "graphql-request";
 import { useAccount } from "wagmi";
 
@@ -7,190 +6,58 @@ import { urlSubgraph } from "@/lib/constants";
 import { OrganizationListsResponse } from "@/types/graphql/organization.type";
 import { queryOrganizationListsByOwner } from "@/lib/graphql/organization-lists.query";
 
-type CachedOrganizationData = {
-  allItems: OrganizationListsResponse["organizationLists"]["items"];
-  endCursor: string | null;
-  totalCount: number;
-  pageInfo: OrganizationListsResponse["organizationLists"]["pageInfo"];
-};
-
 export const useOrganizationListsByOwner = () => {
   const { address: userAddress } = useAccount();
-  const queryClient = useQueryClient();
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
 
-  const cacheKey = ["organizationListsAccumulated", userAddress];
+  const {
+    data,
+    isLoading,
+    isError,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useInfiniteQuery<OrganizationListsResponse>({
+    queryKey: ["organizationListsByOwner", userAddress],
+    queryFn: async ({ pageParam = null }) => {
+      if (!userAddress) throw new Error("Address is required");
 
-  const getCachedData = useCallback((): CachedOrganizationData => {
-    return (
-      queryClient.getQueryData(cacheKey) || {
-        allItems: [],
-        endCursor: null,
-        totalCount: 0,
-        pageInfo: {
-          hasNextPage: false,
-          hasPreviousPage: false,
-          startCursor: "",
-          endCursor: "",
-        },
-      }
-    );
-  }, [queryClient, cacheKey]);
-
-  const setCachedData = useCallback(
-    (data: CachedOrganizationData) => {
-      queryClient.setQueryData(cacheKey, data);
+      return request<OrganizationListsResponse>(
+        urlSubgraph,
+        queryOrganizationListsByOwner(userAddress, pageParam as string | null),
+      );
     },
-    [queryClient, cacheKey],
-  );
+    initialPageParam: null,
+    getNextPageParam: (lastPage) =>
+      lastPage.organizationLists.pageInfo.hasNextPage
+        ? lastPage.organizationLists.pageInfo.endCursor
+        : undefined,
+    enabled: !!userAddress,
+    staleTime: 30 * 60 * 1000,
+    gcTime: 60 * 60 * 1000,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
+  });
 
-  const cachedData = getCachedData();
+  const allItems =
+    data?.pages.flatMap((page) => page.organizationLists.items) || [];
 
-  const { isLoading, isError, refetch, isFetching } =
-    useQuery<OrganizationListsResponse>({
-      queryKey: ["organizationListsByOwner", userAddress, cachedData.endCursor],
-      queryFn: async () => {
-        if (!userAddress) {
-          throw new Error("Address is required");
-        }
+  const totalCount =
+    data?.pages[data.pages.length - 1]?.organizationLists.totalCount ?? 0;
 
-        const result = await request<OrganizationListsResponse>(
-          urlSubgraph,
-          queryOrganizationListsByOwner(userAddress, cachedData.endCursor),
-        );
+  const pageInfo =
+    data?.pages[data.pages.length - 1]?.organizationLists.pageInfo;
 
-        const currentCached = getCachedData();
-        const newCachedData: CachedOrganizationData = {
-          allItems: [
-            ...currentCached.allItems,
-            ...result.organizationLists.items,
-          ],
-          endCursor: result.organizationLists.pageInfo.endCursor,
-          totalCount: result.organizationLists.totalCount,
-          pageInfo: result.organizationLists.pageInfo,
-        };
-
-        setCachedData(newCachedData);
-
-        return result;
-      },
-      enabled: !!userAddress,
-      staleTime: 30 * 60 * 1000,
-      gcTime: 60 * 60 * 1000,
-      refetchOnWindowFocus: false,
-      refetchOnMount: false,
-      refetchOnReconnect: false,
-    });
-
-  const keepCacheAlive = useCallback(() => {
-    const data = getCachedData();
-
-    if (data.allItems.length > 0) {
-      queryClient.setQueryData(cacheKey, data, {
-        updatedAt: Date.now(),
-      });
-    }
-  }, [getCachedData, queryClient, cacheKey]);
-
-  useMemo(() => {
-    const interval = setInterval(keepCacheAlive, 5 * 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [keepCacheAlive]);
-
-  const resetPagination = useCallback(() => {
-    const resetData: CachedOrganizationData = {
-      allItems: [],
-      endCursor: null,
-      totalCount: 0,
-      pageInfo: {
-        hasNextPage: false,
-        hasPreviousPage: false,
-        startCursor: "",
-        endCursor: "",
-      },
-    };
-
-    setCachedData(resetData);
-
-    queryClient.invalidateQueries({
-      queryKey: ["organizationListsByOwner", userAddress],
-    });
-  }, [setCachedData, queryClient, userAddress]);
-
-  const hasNextPage = cachedData.pageInfo?.hasNextPage ?? false;
-
-  const fetchNextPage = useCallback(async () => {
-    if (!hasNextPage || !userAddress || isFetching || isFetchingMore) {
-      return;
-    }
-    setIsFetchingMore(true);
-    try {
-      await refetch();
-    } finally {
-      setIsFetchingMore(false);
-    }
-  }, [hasNextPage, userAddress, refetch, isFetching, isFetchingMore]);
-
-  const fetchAllPages = useCallback(async () => {
-    if (!userAddress || isFetching || isFetchingMore) {
-      return;
-    }
-
-    setIsFetchingMore(true);
-    try {
-      let currentData = getCachedData();
-      let cursor = currentData.endCursor;
-      let hasMore = currentData.pageInfo?.hasNextPage ?? true;
-
-      while (hasMore) {
-        const result = await request<OrganizationListsResponse>(
-          urlSubgraph,
-          queryOrganizationListsByOwner(userAddress, cursor),
-        );
-
-        currentData = {
-          allItems: [
-            ...currentData.allItems,
-            ...result.organizationLists.items,
-          ],
-          endCursor: result.organizationLists.pageInfo.endCursor,
-          totalCount: result.organizationLists.totalCount,
-          pageInfo: result.organizationLists.pageInfo,
-        };
-        setCachedData(currentData);
-
-        cursor = result.organizationLists.pageInfo.endCursor;
-        hasMore = result.organizationLists.pageInfo.hasNextPage;
-      }
-    } finally {
-      setIsFetchingMore(false);
-    }
-  }, [userAddress, isFetching, isFetchingMore, getCachedData, setCachedData]);
-
-  return useMemo(
-    () => ({
-      data: cachedData.allItems,
-      isLoading: isLoading || isFetchingMore,
-      isError,
-      hasNextPage,
-      fetchNextPage,
-      fetchAllPages,
-      totalCount: cachedData.totalCount,
-      pageInfo: cachedData.pageInfo,
-      resetPagination,
-    }),
-    [
-      cachedData.allItems,
-      cachedData.totalCount,
-      cachedData.pageInfo,
-      isLoading,
-      isFetchingMore,
-      isError,
-      hasNextPage,
-      fetchNextPage,
-      fetchAllPages,
-      resetPagination,
-    ],
-  );
+  return {
+    data: allItems,
+    totalCount,
+    pageInfo,
+    isLoading,
+    isError,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+    refetch,
+  };
 };

@@ -47,7 +47,6 @@ interface EmployeeCreatorProps {
   onSuccess?: () => void;
   organizationAddress: HexAddress;
   refetch: () => void;
-  resetPagination: () => void;
   emp?: EmployeeItem[];
 }
 
@@ -55,7 +54,6 @@ export default function EmployeeCreator({
   onSuccess,
   organizationAddress,
   refetch,
-  resetPagination,
   emp,
 }: EmployeeCreatorProps) {
   const { address } = useAccount();
@@ -197,7 +195,6 @@ export default function EmployeeCreator({
           setSelectedMinute("00");
           onSuccess?.();
           refetch();
-          resetPagination();
         },
       },
     );

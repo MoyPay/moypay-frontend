@@ -54,7 +54,7 @@ export default function Organization({ id }: OrganizationProps) {
     data: emp,
     isLoading: empLoading,
     error: empError,
-    resetPagination,
+    refetch: refetchEmployees,
   } = useEmployeeListsByOrganization({
     organizationAddress: org?.organization ?? "",
     enabled: !!org?.organization,
@@ -220,7 +220,10 @@ export default function Organization({ id }: OrganizationProps) {
                   <TooltipTrigger asChild>
                     <DepositDialog
                       organizationAddress={org?.organization ?? ""}
-                      refetch={refetch}
+                      refetch={() => {
+                        refetch();
+                        refetchEmployees();
+                      }}
                       trigger={
                         <Button className="flex-1 flex items-center justify-center gap-1">
                           <ArrowDown className="w-5 h-5" />
@@ -244,7 +247,10 @@ export default function Organization({ id }: OrganizationProps) {
                           <span className="ml-2">Settings</span>
                         </Button>
                       }
-                      onSuccess={refetch}
+                      onSuccess={() => {
+                        refetch();
+                        refetchEmployees();
+                      }}
                     />
                   </TooltipTrigger>
                   <TooltipContent>
@@ -384,8 +390,10 @@ export default function Organization({ id }: OrganizationProps) {
                         organizationAddress={
                           (org?.organization as HexAddress) ?? ""
                         }
-                        refetch={refetch}
-                        resetPagination={resetPagination}
+                        refetch={() => {
+                          refetch();
+                          refetchEmployees();
+                        }}
                       />
                     </div>
                   </TooltipTrigger>
@@ -509,7 +517,15 @@ export default function Organization({ id }: OrganizationProps) {
                             <TooltipTrigger asChild>
                               <span>
                                 Accumulated salary: $
-                                {employeeSalaries[employee.id]?.currentBalance}
+                                {(() => {
+                                  const balance =
+                                    employeeSalaries[employee.id]
+                                      ?.currentBalance;
+
+                                  return Number(balance) >= 1000
+                                    ? formatCompactNumber(balance)
+                                    : balance;
+                                })()}
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>

@@ -54,8 +54,7 @@ export default function Dashboard() {
   const {
     data: organizationLists,
     isLoading: isOwnedLoading,
-    resetPagination,
-    fetchAllPages,
+    refetch,
   } = useOrganizationListsByOwner();
   const { data: organizationJoinedLists, isLoading: isJoinedLoading } =
     useOrganizationJoinedListsByEmployee();
@@ -119,8 +118,7 @@ export default function Dashboard() {
               </div>
               <OrganizationCreator
                 onSuccess={() => {
-                  resetPagination();
-                  fetchAllPages();
+                  refetch();
                 }}
               />
             </div>

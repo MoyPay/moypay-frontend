@@ -43,13 +43,13 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
     data: employee,
     isLoading: employeesLoading,
     error: employeesError,
-    resetPagination,
+    refetch: refetchEmployees,
   } = useEmployeeListsByEmployee({ employeeAddress: org?.employee ?? "" });
 
   const salaryEmployee = useEmployeeSalary({
     employee: employee,
     organization: org,
-    updateInterval: 1000,
+    updateInterval: 2000,
   });
 
   if (orgLoading || employeesLoading) {
@@ -210,7 +210,7 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                       balance={salaryEmployee.currentBalance}
                       organizationAddress={org?.organization ?? ""}
                       onSuccess={() => {
-                        resetPagination();
+                        refetchEmployees();
                         refetch();
                       }}
                     />
@@ -336,7 +336,14 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-3xl sm:text-4xl lg:text-5xl leading-none">
-                      ${salaryEmployee.currentBalance}
+                      $
+                      {(() => {
+                        const balance = Number(salaryEmployee.currentBalance);
+
+                        return balance >= 1000
+                          ? formatCompactNumber(balance)
+                          : balance;
+                      })()}
                     </span>
                   </div>
                 </div>
