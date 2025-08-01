@@ -13,32 +13,39 @@ import { Button } from "@/components/ui/button";
 import { useBalanceCustom } from "@/hooks/query/contract/use-balance-custom";
 import { contractAddresses } from "@/lib/constants";
 import { formatCompactNumber } from "@/lib/helper/number";
-import { useDepositOrganization } from "@/hooks/mutation/contract/use-deposit-organization";
+import { useStakeProtocol } from "@/hooks/mutation/contract/use-stake";
 import TransactionDialog from "@/components/dialog/dialog-transactions";
+import { EarnData } from "@/data/earn.data";
+import { useBalanceStaked } from "@/hooks/query/contract/use-balance-staked";
 
-interface DepositDialogProps {
-  organizationAddress: string;
-  refetch: () => void;
+interface StakeDialogProps {
+  protocol: EarnData;
+  refetch?: () => void;
   trigger?: React.ReactNode;
 }
 
-const DepositDialog: React.FC<DepositDialogProps> = ({
+type HexAddress = `0x${string}`;
+
+const StakeDialog: React.FC<StakeDialogProps> = ({
   trigger,
   refetch,
-  organizationAddress,
+  protocol,
 }) => {
   const [amount, setAmount] = useState<string>("");
   const [selectedToken] = useState<string>("USDC");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
 
-  const { mutation, dialogStatus, steps, txHash } = useDepositOrganization();
+  const { mutation, dialogStatus, steps, txHash } = useStakeProtocol();
+  const { stakedAmount } = useBalanceStaked({
+    protocolAddress: protocol.address as HexAddress,
+  });
 
   const { balanceNormalized } = useBalanceCustom({
     tokenAddress: contractAddresses.mockUSDC,
   });
 
-  const quickAmounts: number[] = [100, 1000];
+  const quickAmounts: number[] = [100, 500, 1000];
 
   const handleAmountClick = (value: number): void => {
     setAmount(value.toString());
@@ -50,20 +57,20 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
     }
   };
 
-  const handleDeposit = (): void => {
+  const handleStake = (): void => {
     setIsOpen(false);
     setTransactionOpen(true);
 
     mutation.mutate(
       {
-        salary: parseFloat(amount) || 0,
-        organizationAddress: organizationAddress as HexAddress,
+        amount: parseFloat(amount) || 0,
+        protocolAddress: protocol.address as HexAddress,
       },
       {
         onSuccess: () => {
           setIsOpen(false);
           setAmount("");
-          refetch();
+          refetch?.();
         },
       },
     );
@@ -119,8 +126,11 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           {trigger || (
-            <Button className="px-6 py-3 rounded-xl font-medium">
-              Deposit Funds
+            <Button
+              className="flex-1 flex items-center justify-center gap-1 rounded-2xl"
+              variant="outline"
+            >
+              STAKE
             </Button>
           )}
         </DialogTrigger>
@@ -131,16 +141,45 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
         >
           <DialogHeader className="p-6 pb-4">
             <DialogTitle className="text-xl font-semibold text-white">
-              Deposit Funds
+              Stake in {protocol.name}
             </DialogTitle>
+            <p className="text-sm text-muted-foreground mt-1">
+              {protocol.description}
+            </p>
           </DialogHeader>
 
           <div className="flex flex-col gap-6 px-6 pb-6">
+            <div className="flex items-center gap-3 p-4 bg-background/50 rounded-2xl border border-muted-foreground/20">
+              <Image
+                alt={protocol.name}
+                className="w-10 h-10 rounded-full"
+                height={40}
+                src={protocol.iconUrl}
+                width={40}
+              />
+              <div className="flex-1">
+                <h4 className="font-semibold text-white">{protocol.name}</h4>
+                <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                  <span>{protocol.apy}% APY</span>
+                  <span>{formatCompactNumber(protocol.tvl)} TVL</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <span className="text-white/70 text-sm font-medium">
+                Staked Amount
+              </span>
+              <span className="text-xs text-white/50">
+                {formatCompactNumber(stakedAmount)} {selectedToken}
+              </span>
+            </div>
+
             <div>
               <div className="flex flex-col border border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-2xl p-5 bg-background backdrop-blur-sm shadow-sm">
                 <div className="flex items-center justify-between mb-4">
                   <span className="text-white/70 text-sm font-medium">
-                    You&#39;re depositing
+                    You&apos;re staking
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-white/50">
@@ -152,7 +191,7 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
 
                 <div className="relative mb-4">
                   <input
-                    aria-label="Deposit amount"
+                    aria-label="Stake amount"
                     autoComplete="off"
                     autoCorrect="off"
                     className={`w-full bg-transparent text-3xl font-light text-center px-4 py-3 border-none outline-none ring-0 placeholder:text-gray-500 focus:placeholder:text-gray-400 transition-all ${
@@ -206,7 +245,7 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
                 <div className="flex items-center justify-between w-full">
                   <div className="flex items-center gap-2">
                     <Image
-                      alt="Description of image"
+                      alt="USDC Token"
                       className="w-6 h-6"
                       height={144}
                       src="/usdc.png"
@@ -231,13 +270,13 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
                   : ""
               }`}
               disabled={!isValidAmount || isExceedsBalance}
-              onClick={handleDeposit}
+              onClick={handleStake}
             >
               {!isValidAmount
                 ? "Enter an amount"
                 : isExceedsBalance
                   ? "Insufficient balance"
-                  : `Deposit ${numericAmount.toLocaleString()} ${selectedToken}`}
+                  : `Stake ${numericAmount.toLocaleString()} ${selectedToken}`}
             </Button>
           </div>
         </DialogContent>
@@ -246,4 +285,4 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
   );
 };
 
-export default DepositDialog;
+export default StakeDialog;
