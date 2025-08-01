@@ -14,6 +14,8 @@ import { formatCompactNumber } from "@/lib/helper/number";
 import { EarnData } from "@/data/earn.data";
 import { useBalanceStaked } from "@/hooks/query/contract/use-balance-staked";
 import ConnectButtonWrapper from "@/components/wallet/connect-button-wrapper";
+import { useWithdrawEarn } from "@/hooks/mutation/contract/use-withdraw-earn";
+import TransactionDialog from "@/components/dialog/dialog-transactions";
 
 interface WithdrawDialogProps {
   protocol: EarnData;
@@ -31,10 +33,12 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
   const [amount, setAmount] = useState<string>("");
   const [selectedToken] = useState<string>("USDC");
   const [isOpen, setIsOpen] = useState<boolean>(false);
+  const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
 
   const { stakedAmount } = useBalanceStaked({
     protocolAddress: protocol.address as HexAddress,
   });
+  const { mutation, dialogStatus, steps, txHash } = useWithdrawEarn();
 
   const quickAmounts: number[] = [100, 500, 1000];
 
@@ -50,8 +54,21 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
 
   const handleWithdraw = (): void => {
     setIsOpen(false);
-    setAmount("");
-    refetch?.();
+    setTransactionOpen(true);
+
+    mutation.mutate(
+      {
+        amount: parseFloat(amount) || 0,
+        protocolAddress: protocol.address as HexAddress,
+      },
+      {
+        onSuccess: () => {
+          setIsOpen(false);
+          setAmount("");
+          refetch?.();
+        },
+      },
+    );
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -91,7 +108,14 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
 
   return (
     <React.Fragment>
-      {/* Transaction Dialog */}
+      <TransactionDialog
+        errorMessage={mutation.error?.message}
+        isOpen={transactionOpen}
+        status={dialogStatus()}
+        steps={steps}
+        txHash={txHash as HexAddress}
+        onClose={() => setTransactionOpen(false)}
+      />
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>

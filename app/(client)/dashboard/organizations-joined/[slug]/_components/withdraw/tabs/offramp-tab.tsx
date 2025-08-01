@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { formatNumberWithComma } from "@/lib/helper/formatted";
 import { useWithdrawOrganization } from "@/hooks/mutation/contract/use-withdraw-organization";
 import TransactionDialog from "@/components/dialog/dialog-transactions";
+import { cn } from "@/lib/utils";
 
 export const OffRampTab = ({
   balance,
@@ -28,6 +29,7 @@ export const OffRampTab = ({
   const [amount, setAmount] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
+  const isExceedsBalance = parseFloat(rawAmount) > Number(balance);
 
   const { mutation, dialogStatus, steps, txHash } = useWithdrawOrganization({
     onSuccess,
@@ -41,7 +43,7 @@ export const OffRampTab = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawVal = e.target.value.replace(/,/g, "");
+    const rawVal = e.target.value.replace(/[,$]/g, "");
 
     if (/^\d*\.?\d{0,6}$/.test(rawVal)) {
       setRawAmount(rawVal);
@@ -51,6 +53,8 @@ export const OffRampTab = ({
 
       if (numericVal > parseFloat(balance)) {
         setError("Insufficient balance to withdraw this amount");
+      } else if (numericVal < 5) {
+        setError("Minimum withdrawal amount is $5");
       } else {
         setError(null);
       }
@@ -60,10 +64,11 @@ export const OffRampTab = ({
   const handleWithdraw = (): void => {
     const numericVal = parseFloat(rawAmount);
 
-    // if (numericVal < 5) {
-    //   setError("Minimum withdrawal amount is $5");
-    //   return;
-    // }
+    if (numericVal < 5) {
+      setError("Minimum withdrawal amount is $5");
+
+      return;
+    }
 
     if (numericVal > parseFloat(balance)) {
       setError("Insufficient balance to withdraw this amount");
@@ -95,10 +100,16 @@ export const OffRampTab = ({
           <CardContent className="px-0">
             <div className="relative">
               <Input
-                className="h-20 w-full rounded-xl md:text-4xl pr-36"
-                placeholder="0"
-                type="number"
-                value={amount}
+                className={cn(
+                  "h-20 w-full rounded-xl md:text-4xl pr-36",
+                  isExceedsBalance
+                    ? "text-red-500 !border-red-500 focus-visible:border-ring focus-visible:ring-red-500 focus-visible:ring-[3px]"
+                    : "",
+                  !amount && "text-muted-foreground",
+                )}
+                placeholder="0.00"
+                type="text"
+                value={amount ? `$${amount}` : "$0"}
                 onChange={handleInputChange}
               />
               <div className="absolute top-1/2 -translate-y-1/2 right-4 flex gap-1 items-center border-2 py-2 px-4 rounded-full">
@@ -111,9 +122,9 @@ export const OffRampTab = ({
                 <span className="text-xl text-gray-500">USDC</span>
               </div>
             </div>
-            {error && (
+            {/* {error && (
               <p className="text-sm text-red-500 mt-1 font-medium">{error}</p>
-            )}
+            )} */}
             <div className="mt-1 flex items-center justify-between">
               <span className="text-sm font-semibold">Balance: ${balance}</span>
               <Button
@@ -165,11 +176,25 @@ export const OffRampTab = ({
           </CardContent>
           <CardFooter className="px-0">
             <Button
-              className="w-full border-2 border-b-muted-foreground"
+              className={cn(
+                `w-full`,
+                !isExceedsBalance
+                  ? "border-2 border-b-muted-foreground"
+                  : "text-red-400",
+              )}
+              disabled={
+                parseFloat(rawAmount || "0") < 5 ||
+                parseFloat(rawAmount || "0") > parseFloat(balance)
+              }
               size="lg"
+              variant={isExceedsBalance ? "destructive" : "default"}
               onClick={handleWithdraw}
             >
-              Withdraw
+              {!rawAmount
+                ? "Enter Amount"
+                : !isExceedsBalance
+                  ? `Withdraw $${parseFloat(rawAmount).toLocaleString()}`
+                  : "Insufficient balance"}
             </Button>
           </CardFooter>
         </Card>

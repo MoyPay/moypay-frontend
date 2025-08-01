@@ -1,5 +1,3 @@
-import { Abi } from "viem";
-
 export const ProtocolABI = [
   {
     inputs: [
@@ -285,4 +283,4 @@ export const ProtocolABI = [
     stateMutability: "nonpayable",
     type: "function",
   },
-] as Abi;
+] as const;

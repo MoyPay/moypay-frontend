@@ -36,10 +36,12 @@ export default function WithdrawDialog({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Withdraw</DialogTitle>
-          <DialogDescription>ANJINGG</DialogDescription>
+          <DialogDescription>
+            ⚠️ Minimum withdrawal amount is $5
+          </DialogDescription>
         </DialogHeader>
         <div className="w-full h-full max-w-7xl mx-auto">
-          <div className="p-5 flex items-center justify-center h-full">
+          <div className="flex items-center justify-center h-full">
             <WithdrawTabs
               balance={balance}
               organizationAddress={organizationAddress}

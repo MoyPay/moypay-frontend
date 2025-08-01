@@ -10,6 +10,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { useWithdrawOrganization } from "@/hooks/mutation/contract/use-withdraw-organization";
 import TransactionDialog from "@/components/dialog/dialog-transactions";
 import { formatNumberWithComma } from "@/lib/helper/formatted";
+import { cn } from "@/lib/utils";
 
 export const WalletTab = ({
   balance,
@@ -23,9 +24,10 @@ export const WalletTab = ({
     onSuccess,
   });
   const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
+  const isExceedsBalance = parseFloat(rawAmount) > Number(balance);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const rawVal = e.target.value.replace(/,/g, "");
+    const rawVal = e.target.value.replace(/[,$]/g, "");
 
     if (/^\d*\.?\d{0,6}$/.test(rawVal)) {
       setRawAmount(rawVal);
@@ -82,10 +84,16 @@ export const WalletTab = ({
           <CardContent className="px-0">
             <div className="relative">
               <Input
-                className="h-20 w-full rounded-xl md:text-4xl pr-36"
+                className={cn(
+                  "h-20 w-full rounded-xl md:text-4xl pr-36",
+                  isExceedsBalance
+                    ? "text-red-500 !border-red-500 focus-visible:border-ring focus-visible:ring-red-500 focus-visible:ring-[3px]"
+                    : "",
+                  !amount && "text-muted-foreground",
+                )}
                 placeholder="0.00"
                 type="text"
-                value={amount}
+                value={amount ? `$${amount}` : "$0"}
                 onChange={handleInputChange}
               />
               <div className="absolute top-1/2 -translate-y-1/2 right-4 flex gap-1 items-center border-2 py-2 px-4 rounded-full">
@@ -98,9 +106,9 @@ export const WalletTab = ({
                 <span className="text-xl text-gray-500">USDC</span>
               </div>
             </div>
-            {error && (
+            {/* {error && (
               <p className="text-sm text-red-500 mt-1 font-medium">{error}</p>
-            )}
+            )} */}
             <div className="mt-1 flex items-center justify-between">
               <span className="text-sm font-semibold">Balance: ${balance}</span>
               <Button
@@ -118,15 +126,25 @@ export const WalletTab = ({
           </CardContent>
           <CardFooter className="px-0">
             <Button
-              className="w-full border-2 border-b-muted-foreground"
+              className={cn(
+                `w-full`,
+                !isExceedsBalance
+                  ? "border-2 border-b-muted-foreground"
+                  : "text-red-400",
+              )}
               disabled={
                 parseFloat(rawAmount || "0") < 5 ||
                 parseFloat(rawAmount || "0") > parseFloat(balance)
               }
               size="lg"
+              variant={isExceedsBalance ? "destructive" : "default"}
               onClick={handleWithdraw}
             >
-              Withdraw
+              {!rawAmount
+                ? "Enter Amount"
+                : !isExceedsBalance
+                  ? `Withdraw $${parseFloat(rawAmount).toLocaleString()}`
+                  : "Insufficient balance"}
             </Button>
           </CardFooter>
         </Card>
