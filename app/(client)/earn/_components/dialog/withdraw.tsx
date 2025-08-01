@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { formatCompactNumber } from "@/lib/helper/number";
 import { EarnData } from "@/data/earn.data";
 import { useBalanceStaked } from "@/hooks/query/contract/use-balance-staked";
+import ConnectButtonWrapper from "@/components/wallet/connect-button-wrapper";
 
 interface WithdrawDialogProps {
   protocol: EarnData;
@@ -223,21 +224,23 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
               </div>
             </div>
 
-            <Button
-              className={`${
-                isExceedsStaked
-                  ? "bg-red-600/20 border-red-600/30 text-red-400 cursor-not-allowed"
-                  : ""
-              }`}
-              disabled={!isValidAmount || isExceedsStaked}
-              onClick={handleWithdraw}
-            >
-              {!isValidAmount
-                ? "Enter an amount"
-                : isExceedsStaked
-                  ? "Exceeds staked amount"
-                  : `Withdraw ${numericAmount.toLocaleString()} ${selectedToken}`}
-            </Button>
+            <ConnectButtonWrapper>
+              <Button
+                className={`${
+                  isExceedsStaked
+                    ? "bg-red-600/20 border-red-600/30 text-red-400 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={!isValidAmount || isExceedsStaked}
+                onClick={handleWithdraw}
+              >
+                {!isValidAmount
+                  ? "Enter an amount"
+                  : isExceedsStaked
+                    ? "Exceeds staked amount"
+                    : `Withdraw ${numericAmount.toLocaleString()} ${selectedToken}`}
+              </Button>
+            </ConnectButtonWrapper>
           </div>
         </DialogContent>
       </Dialog>

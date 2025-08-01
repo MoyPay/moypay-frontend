@@ -17,6 +17,7 @@ import { useStakeProtocol } from "@/hooks/mutation/contract/use-stake";
 import TransactionDialog from "@/components/dialog/dialog-transactions";
 import { EarnData } from "@/data/earn.data";
 import { useBalanceStaked } from "@/hooks/query/contract/use-balance-staked";
+import ConnectButtonWrapper from "@/components/wallet/connect-button-wrapper";
 
 interface StakeDialogProps {
   protocol: EarnData;
@@ -262,21 +263,23 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
               </div>
             </div>
 
-            <Button
-              className={`${
-                isExceedsBalance
-                  ? "bg-red-600/20 border-red-600/30 text-red-400 cursor-not-allowed"
-                  : ""
-              }`}
-              disabled={!isValidAmount || isExceedsBalance}
-              onClick={handleStake}
-            >
-              {!isValidAmount
-                ? "Enter an amount"
-                : isExceedsBalance
-                  ? "Insufficient balance"
-                  : `Stake ${numericAmount.toLocaleString()} ${selectedToken}`}
-            </Button>
+            <ConnectButtonWrapper>
+              <Button
+                className={`${
+                  isExceedsBalance
+                    ? "bg-red-600/20 border-red-600/30 text-red-400 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={!isValidAmount || isExceedsBalance}
+                onClick={handleStake}
+              >
+                {!isValidAmount
+                  ? "Enter an amount"
+                  : isExceedsBalance
+                    ? "Insufficient balance"
+                    : `Stake ${numericAmount.toLocaleString()} ${selectedToken}`}
+              </Button>
+            </ConnectButtonWrapper>
           </div>
         </DialogContent>
       </Dialog>

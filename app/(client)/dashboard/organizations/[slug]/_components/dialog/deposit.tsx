@@ -15,6 +15,7 @@ import { contractAddresses } from "@/lib/constants";
 import { formatCompactNumber } from "@/lib/helper/number";
 import { useDepositOrganization } from "@/hooks/mutation/contract/use-deposit-organization";
 import TransactionDialog from "@/components/dialog/dialog-transactions";
+import ConnectButtonWrapper from "@/components/wallet/connect-button-wrapper";
 
 interface DepositDialogProps {
   organizationAddress: string;
@@ -223,21 +224,23 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
               </div>
             </div>
 
-            <Button
-              className={`${
-                isExceedsBalance
-                  ? "bg-red-600/20 border-red-600/30 text-red-400 cursor-not-allowed"
-                  : ""
-              }`}
-              disabled={!isValidAmount || isExceedsBalance}
-              onClick={handleDeposit}
-            >
-              {!isValidAmount
-                ? "Enter an amount"
-                : isExceedsBalance
-                  ? "Insufficient balance"
-                  : `Deposit ${numericAmount.toLocaleString()} ${selectedToken}`}
-            </Button>
+            <ConnectButtonWrapper>
+              <Button
+                className={`${
+                  isExceedsBalance
+                    ? "bg-red-600/20 border-red-600/30 text-red-400 cursor-not-allowed"
+                    : ""
+                }`}
+                disabled={!isValidAmount || isExceedsBalance}
+                onClick={handleDeposit}
+              >
+                {!isValidAmount
+                  ? "Enter an amount"
+                  : isExceedsBalance
+                    ? "Insufficient balance"
+                    : `Deposit ${numericAmount.toLocaleString()} ${selectedToken}`}
+              </Button>
+            </ConnectButtonWrapper>
           </div>
         </DialogContent>
       </Dialog>
