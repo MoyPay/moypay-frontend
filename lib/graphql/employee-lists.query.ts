@@ -35,6 +35,7 @@ export const queryEmployeeListsByOrganization = (
           totalEarned
           totalWithdrawn
           unrealizedSalary
+          autoEarnStatus
         }
         pageInfo {
           startCursor
@@ -83,6 +84,7 @@ export const queryEmployeeListsByEmployee = (
           totalEarned
           totalWithdrawn
           unrealizedSalary
+          autoEarnStatus
         }
         pageInfo {
           startCursor
@@ -122,6 +124,7 @@ export const queryEmployeeListById = (id: string) => {
         totalEarned
         totalWithdrawn
         unrealizedSalary
+        autoEarnStatus
       }
     }
   `;

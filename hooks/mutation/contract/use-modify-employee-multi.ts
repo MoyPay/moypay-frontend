@@ -34,6 +34,8 @@ type Transaction = {
 
 interface ModifyEmployeeParams {
   employeeAddress: HexAddress;
+  newName?: string;
+  currentName?: string;
   newSalary?: number;
   currentSalary?: number;
   newStatus?: boolean;
@@ -90,6 +92,8 @@ export const useModifyEmployeeMulti = () => {
   const mutation = useMutation({
     mutationFn: async ({
       employeeAddress,
+      newName,
+      currentName,
       newSalary,
       currentSalary,
       newStatus,
@@ -101,6 +105,10 @@ export const useModifyEmployeeMulti = () => {
       try {
         if (!userAddress) throw new Error("User not connected");
 
+        const needsNameUpdate =
+          newName !== undefined &&
+          currentName !== undefined &&
+          newName !== currentName;
         const needsSalaryUpdate =
           newSalary !== undefined &&
           currentSalary !== undefined &&
@@ -111,6 +119,22 @@ export const useModifyEmployeeMulti = () => {
           newStatus !== currentStatus;
 
         const initialTransactions: Transaction[] = [];
+
+        // Setup name transaction if needed
+        if (needsNameUpdate) {
+          const nameSteps: Step[] = [
+            { step: 1, text: "Preparing Transaction", status: "idle" },
+            { step: 2, text: "Updating Employee Name", status: "idle" },
+            { step: 3, text: "Finalizing", status: "idle" },
+          ];
+
+          initialTransactions.push({
+            id: "name-update",
+            name: "Update Employee Name",
+            steps: nameSteps,
+            status: "idle",
+          });
+        }
 
         // Setup salary transaction if needed
         if (needsSalaryUpdate) {
@@ -146,6 +170,64 @@ export const useModifyEmployeeMulti = () => {
         }
 
         setTransactions(initialTransactions);
+
+        if (needsNameUpdate && newName !== undefined) {
+          updateTransactionStatus("name-update", "loading");
+
+          try {
+            updateStepStatus("name-update", 1, "loading");
+            updateStepStatus("name-update", 1, "success");
+            updateStepStatus("name-update", 2, "loading");
+
+            const txHash = await writeContract(config, {
+              address: organizationAddress,
+              abi: OrganizationABI,
+              functionName: "setName",
+              args: [newName],
+            });
+
+            const result = await waitForTransactionReceipt(config, {
+              hash: txHash,
+            });
+
+            if (!result.status) {
+              throw new Error("Update name transaction failed");
+            }
+
+            updateStepStatus("name-update", 2, "success");
+            updateStepStatus("name-update", 3, "loading");
+
+            await new Promise((r) => setTimeout(r, 1000));
+
+            updateStepStatus("name-update", 3, "success");
+            updateTransactionStatus("name-update", "success", txHash);
+          } catch (error) {
+            const message = (error as Error).message || "Unknown error";
+
+            updateTransactionStatus(
+              "name-update",
+              "failed",
+              undefined,
+              message,
+            );
+
+            setTransactions((prev) =>
+              prev.map((tx) =>
+                tx.id === "name-update"
+                  ? {
+                      ...tx,
+                      steps: tx.steps.map((step) =>
+                        step.status === "loading"
+                          ? { ...step, status: "error", error: message }
+                          : step,
+                      ),
+                    }
+                  : tx,
+              ),
+            );
+            throw error;
+          }
+        }
 
         if (
           needsSalaryUpdate &&

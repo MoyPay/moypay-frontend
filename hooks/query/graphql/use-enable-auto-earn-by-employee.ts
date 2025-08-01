@@ -3,10 +3,14 @@ import { request } from "graphql-request";
 import { useAccount } from "wagmi";
 
 import { urlSubgraph } from "@/lib/constants";
-import { queryOrganizationJoinedListsByEmployee } from "@/lib/graphql/organization-joined-lists.query";
-import { OrganizationJoinedListsResponse } from "@/types/graphql/organization-joined.type";
+import { queryEnableAutoEarnsByEmployee } from "@/lib/graphql/enable-auto-earn.query";
+import { EnableAutoEarnsResponse } from "@/types/graphql/enable-auto-earn.type";
 
-export const useOrganizationJoinedListsByEmployee = () => {
+export const useEnableAutoEarnsByEmployee = ({
+  employeeAddress,
+}: {
+  employeeAddress: string;
+}) => {
   const { address: userAddress } = useAccount();
 
   const {
@@ -18,25 +22,26 @@ export const useOrganizationJoinedListsByEmployee = () => {
     hasNextPage,
     isFetchingNextPage,
     refetch,
-  } = useInfiniteQuery<OrganizationJoinedListsResponse>({
-    queryKey: ["organizationJoinedListsByEmployee", userAddress],
+  } = useInfiniteQuery<EnableAutoEarnsResponse>({
+    queryKey: ["enableAutoEarnsByEmployee", employeeAddress],
     queryFn: async ({ pageParam = null }) => {
-      if (!userAddress) throw new Error("Address is required");
+      if (!userAddress || employeeAddress)
+        throw new Error("Address is required");
 
-      return await request<OrganizationJoinedListsResponse>(
+      return await request<EnableAutoEarnsResponse>(
         urlSubgraph,
-        queryOrganizationJoinedListsByEmployee(
-          userAddress,
+        queryEnableAutoEarnsByEmployee(
+          employeeAddress,
           pageParam as string | null,
         ),
       );
     },
     initialPageParam: null,
     getNextPageParam: (lastPage) =>
-      lastPage.organizationJoinedLists.pageInfo.hasNextPage
-        ? lastPage.organizationJoinedLists.pageInfo.endCursor
+      lastPage.enableAutoEarns.pageInfo.hasNextPage
+        ? lastPage.enableAutoEarns.pageInfo.endCursor
         : undefined,
-    enabled: !!userAddress,
+    enabled: !!userAddress && !!employeeAddress,
     staleTime: 30 * 60 * 1000,
     gcTime: 60 * 60 * 1000,
     refetchOnWindowFocus: false,
@@ -45,10 +50,10 @@ export const useOrganizationJoinedListsByEmployee = () => {
   });
 
   const allItems =
-    data?.pages.flatMap((page) => page.organizationJoinedLists.items) ?? [];
+    data?.pages.flatMap((page) => page.enableAutoEarns.items) ?? [];
 
-  const totalCount = data?.pages[0]?.organizationJoinedLists.totalCount ?? 0;
-  const pageInfo = data?.pages.at(-1)?.organizationJoinedLists.pageInfo;
+  const totalCount = data?.pages[0]?.enableAutoEarns.totalCount ?? 0;
+  const pageInfo = data?.pages.at(-1)?.enableAutoEarns.pageInfo;
 
   const fetchAllPages = async () => {
     while (hasNextPage) {
@@ -57,7 +62,7 @@ export const useOrganizationJoinedListsByEmployee = () => {
   };
 
   return {
-    data: allItems,
+    data: allItems[0],
     isLoading: isLoading || isFetchingNextPage,
     isError,
     error,

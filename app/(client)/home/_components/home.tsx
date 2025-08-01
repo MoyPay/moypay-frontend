@@ -11,7 +11,7 @@ export default function Home() {
     <div className="w-full h-full max-w-7xl mx-auto p-4">
       <div className="flex items-center justify-center h-full">
         <div className="flex flex-col items-center justify-center gap-6 w-full">
-          <div className="flex flex-wrap justify-center items-center gap-3 mb-4">
+          <div className="flex flex-wrap justify-center items-center gap-3 mb-2">
             <Badge className="flex items-center gap-1">
               <User className="w-4 h-4" /> 10.000 Users
             </Badge>
@@ -24,9 +24,15 @@ export default function Home() {
           </div>
 
           <div className="flex flex-col items-center justify-center gap-8 w-full px-4">
-            <span className="text-3xl sm:text-4xl lg:text-5xl text-center">
-              Start by Creating a Stream
-            </span>
+            <div className="flex flex-col items-center gap-1">
+              <span className="text-3xl sm:text-4xl lg:text-5xl text-center">
+                Unlock Passive Earnings from Day One.
+              </span>
+              <span className="text-lg sm:text-xl text-center text-muted-foreground">
+                From salary to automated yield in seconds — decentralized,
+                permissionless, and unstoppable.
+              </span>
+            </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
               <Link href="/dashboard">

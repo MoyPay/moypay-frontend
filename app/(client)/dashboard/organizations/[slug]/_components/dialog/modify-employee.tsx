@@ -42,6 +42,7 @@ interface ModifyEmployeeProps {
   employeeAddress: HexAddress;
   currentSalary: number;
   currentStatus: boolean;
+  currentName?: string;
   refetch: () => void;
   trigger?: React.ReactNode;
 }
@@ -52,11 +53,13 @@ const ModifyEmployee: React.FC<ModifyEmployeeProps> = ({
   employeeAddress,
   currentSalary,
   currentStatus,
+  currentName,
   refetch,
   trigger,
 }) => {
   const { address } = useAccount();
   const [isOpen, setIsOpen] = useState(false);
+  const [name, setName] = useState(currentName || "");
   const [salary, setSalary] = useState(currentSalary.toString());
   const [status, setStatus] = useState(currentStatus);
   const [isNow, setIsNow] = useState(true);
@@ -70,8 +73,11 @@ const ModifyEmployee: React.FC<ModifyEmployeeProps> = ({
 
   const isLoading = modifyMutation.isPending;
   const isFormChanged = useMemo(
-    () => salary !== currentSalary.toString() || status !== currentStatus,
-    [salary, status, currentSalary, currentStatus],
+    () =>
+      salary !== currentSalary.toString() ||
+      status !== currentStatus ||
+      name !== (currentName || ""),
+    [salary, status, name, currentSalary, currentStatus, currentName],
   );
 
   const salaryValidation = useMemo(() => {
@@ -147,6 +153,8 @@ const ModifyEmployee: React.FC<ModifyEmployeeProps> = ({
     try {
       await modifyMutation.mutateAsync({
         employeeAddress,
+        newName: name !== (currentName || "") ? name : undefined,
+        currentName,
         newSalary:
           salary !== currentSalary.toString() ? Number(salary) : undefined,
         currentSalary,
@@ -157,6 +165,7 @@ const ModifyEmployee: React.FC<ModifyEmployeeProps> = ({
         organizationAddress,
       });
 
+      setName(currentName || "");
       setSalary(currentSalary.toString());
       setStatus(currentStatus);
       onSuccess?.();
@@ -168,6 +177,7 @@ const ModifyEmployee: React.FC<ModifyEmployeeProps> = ({
 
   const handleDialogClose = () => {
     setIsOpen(false);
+    setName(currentName || "");
     setSalary(currentSalary.toString());
     setStatus(currentStatus);
     setIsNow(true);
@@ -235,6 +245,18 @@ const ModifyEmployee: React.FC<ModifyEmployeeProps> = ({
           </DialogHeader>
 
           <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="emp-name">Employee Name</Label>
+              <Input
+                className="h-12"
+                id="emp-name"
+                placeholder="Enter employee name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="emp-salary">Salary</Label>
               <Input

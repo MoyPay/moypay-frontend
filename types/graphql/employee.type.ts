@@ -23,6 +23,7 @@ export type EmployeeItem = {
   totalEarned: string;
   totalWithdrawn: string;
   unrealizedSalary: string;
+  autoEarnStatus: boolean;
 };
 
 export type EmployeeListsResponse = {

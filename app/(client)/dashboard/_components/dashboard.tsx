@@ -171,9 +171,10 @@ export default function Dashboard() {
           <CardHeader className="p-0 pt-5 px-5">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
               <div className="flex flex-col items-start gap-2">
-                <CardTitle>Organizations Joined</CardTitle>
+                <CardTitle>Organizations Joined & Automated Earn</CardTitle>
                 <CardDescription>
-                  Organizations where you are an employee or team member
+                  View organizations you have joined and manage your automated
+                  earnings
                 </CardDescription>
               </div>
             </div>
