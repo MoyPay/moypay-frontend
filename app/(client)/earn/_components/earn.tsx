@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { earnData } from "@/data/earn.data";
 import { formatCompactNumber } from "@/lib/helper/number";
 import StakeDialog from "@/app/(client)/earn/_components/dialog/stake";
+import WithdrawDialog from "@/app/(client)/earn/_components/dialog/withdraw";
 import { urlExplorer } from "@/lib/helper/web3";
 import { Button } from "@/components/ui/button";
 
@@ -114,12 +115,17 @@ export default function Earn() {
                     </Button>
                   }
                 />
-                <Button
-                  className="flex-1 flex items-center justify-center gap-1 rounded-2xl"
-                  variant="outline"
-                >
-                  Withdraw
-                </Button>
+                <WithdrawDialog
+                  protocol={item}
+                  trigger={
+                    <Button
+                      className="flex-1 flex items-center justify-center gap-1 rounded-2xl"
+                      variant="outline"
+                    >
+                      Withdraw
+                    </Button>
+                  }
+                />
               </div>
             </Card>
           ))}

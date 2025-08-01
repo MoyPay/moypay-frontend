@@ -102,8 +102,7 @@ const DepositDialog: React.FC<DepositDialogProps> = ({
   const displayValue = getDisplayValue();
   const numericAmount = parseFloat(amount) || 0;
   const isValidAmount = amount !== "" && numericAmount > 0;
-  const isExceedsBalance =
-    typeof balanceNormalized === "number" && numericAmount > balanceNormalized;
+  const isExceedsBalance = numericAmount > Number(balanceNormalized);
 
   return (
     <React.Fragment>
