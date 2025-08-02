@@ -23,7 +23,6 @@ export default function Providers({ children }: { children: React.ReactNode }) {
     setMounted(true);
   }, []);
 
-  // Prevent hydration mismatch by not rendering wallet providers on server
   if (!mounted) {
     return (
       <ThemeProvider

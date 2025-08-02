@@ -4,7 +4,7 @@ import { Lexend } from "next/font/google";
 
 import "@/lib/polyfills";
 import "./globals.css";
-import DefaultLayout from "@/components/layout/default";
+import AdaptiveLayout from "@/components/layout/adaptive-layout";
 import Providers from "@/components/providers";
 import { siteConfig } from "@/config/site";
 
@@ -60,7 +60,7 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="en">
       <body className={`${lexend.className} antialiased bg-background`}>
         <Providers>
-          <DefaultLayout>{children}</DefaultLayout>
+          <AdaptiveLayout>{children}</AdaptiveLayout>
         </Providers>
       </body>
     </html>

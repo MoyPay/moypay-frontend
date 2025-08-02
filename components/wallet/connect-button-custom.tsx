@@ -64,7 +64,6 @@ export const ConnectButtonCustom = () => {
     setMounted(true);
   }, []);
 
-  // Don't render anything until after hydration to prevent SSR issues
   if (!mounted) {
     return (
       <div
@@ -73,7 +72,7 @@ export const ConnectButtonCustom = () => {
           opacity: 0,
           pointerEvents: "none",
           userSelect: "none",
-          width: "140px", // Approximate width to prevent layout shift
+          width: "140px",
           height: "40px",
         }}
       />
