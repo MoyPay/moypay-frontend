@@ -1,5 +1,8 @@
+"use client";
+
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Image from "next/image";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -55,6 +58,28 @@ const ButtonCustom = ({
 );
 
 export const ConnectButtonCustom = () => {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Don't render anything until after hydration to prevent SSR issues
+  if (!mounted) {
+    return (
+      <div
+        aria-hidden="true"
+        style={{
+          opacity: 0,
+          pointerEvents: "none",
+          userSelect: "none",
+          width: "140px", // Approximate width to prevent layout shift
+          height: "40px",
+        }}
+      />
+    );
+  }
+
   return (
     <ConnectButton.Custom>
       {({
@@ -63,9 +88,9 @@ export const ConnectButtonCustom = () => {
         openAccountModal,
         openChainModal,
         openConnectModal,
-        mounted,
+        mounted: rainbowMounted,
       }) => {
-        if (!mounted) {
+        if (!rainbowMounted) {
           return (
             <div
               aria-hidden="true"
@@ -73,6 +98,8 @@ export const ConnectButtonCustom = () => {
                 opacity: 0,
                 pointerEvents: "none",
                 userSelect: "none",
+                width: "140px",
+                height: "40px",
               }}
             />
           );

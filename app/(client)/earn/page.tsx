@@ -1,5 +1,5 @@
-import Earn from "./_components/earn";
+import EarnWrapper from "./_components/earn-wrapper";
 
 export default function page() {
-  return <Earn />;
+  return <EarnWrapper />;
 }
