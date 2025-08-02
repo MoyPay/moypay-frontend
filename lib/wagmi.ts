@@ -2,7 +2,7 @@ import "@/lib/polyfills";
 
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { http } from "wagmi";
-import { etherlinkTestnet } from "wagmi/chains";
+// import { etherlinkTestnet } from "wagmi/chains";
 import {
   braveWallet,
   coinbaseWallet,
@@ -15,6 +15,32 @@ import {
 } from "@rainbow-me/rainbowkit/wallets";
 
 import { siteConfig } from "@/config/site";
+
+export const etherlinkTestnet = {
+  id: 128123,
+  name: "Etherlink Testnet",
+  network: "etherlink-testnet",
+  nativeCurrency: {
+    name: "Tez",
+    symbol: "XTZ",
+    decimals: 18,
+  },
+  rpcUrls: {
+    default: {
+      http: ["https://node.ghostnet.etherlink.com"],
+    },
+    public: {
+      http: ["https://node.ghostnet.etherlink.com"],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: "Explorer",
+      url: "https://testnet-explorer.etherlink.com",
+    },
+  },
+  testnet: true,
+};
 
 const config = getDefaultConfig({
   appName: siteConfig.name,
