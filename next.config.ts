@@ -2,6 +2,8 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
+  // Enable standalone output for Docker builds
+  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
   webpack: (config, { webpack }) => {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     

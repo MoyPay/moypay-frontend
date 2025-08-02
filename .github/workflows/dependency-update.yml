@@ -1,0 +1,58 @@
+name: Dependency Updates
+
+on:
+  schedule:
+    # Run every Monday at 9 AM UTC
+    - cron: '0 9 * * 1'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10.12.1'
+
+      - name: Update dependencies
+        run: |
+          pnpm update --latest
+          
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet pnpm-lock.yaml package.json; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: 'chore: update dependencies'
+          title: '🔄 Automated dependency updates'
+          body: |
+            This PR contains automated dependency updates.
+            
+            ## Changes
+            - Updated npm dependencies to their latest versions
+            - Updated pnpm lockfile
+            
+            Please review the changes and test thoroughly before merging.
+          branch: chore/dependency-updates
+          delete-branch: true
