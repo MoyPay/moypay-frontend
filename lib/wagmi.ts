@@ -27,10 +27,10 @@ export const etherlinkTestnet = {
   },
   rpcUrls: {
     default: {
-      http: ["https://node.ghostnet.etherlink.com"],
+      http: ["https://rpc.ankr.com/etherlink_testnet"],
     },
     public: {
-      http: ["https://node.ghostnet.etherlink.com"],
+      http: ["https://rpc.ankr.com/etherlink_testnet"],
     },
   },
   blockExplorers: {
@@ -57,7 +57,7 @@ const config = getDefaultConfig({
     },
   ],
   transports: {
-    [etherlinkTestnet.id]: http("https://node.ghostnet.etherlink.com"),
+    [etherlinkTestnet.id]: http("https://rpc.ankr.com/etherlink_testnet"),
   },
   ssr: true,
 });
