@@ -25,7 +25,7 @@ export const useEnableAutoEarnsByEmployee = ({
   } = useInfiniteQuery<EnableAutoEarnsResponse>({
     queryKey: ["enableAutoEarnsByEmployee", employeeAddress],
     queryFn: async ({ pageParam = null }) => {
-      if (!userAddress || employeeAddress)
+      if (!userAddress || !employeeAddress)
         throw new Error("Address is required");
 
       return await request<EnableAutoEarnsResponse>(

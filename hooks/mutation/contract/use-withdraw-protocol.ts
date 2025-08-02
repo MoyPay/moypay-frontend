@@ -4,8 +4,9 @@ import { useAccount } from "wagmi";
 import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 
 import { config } from "@/lib/wagmi";
-import { OrganizationABI } from "@/lib/abis/organization.abi";
 import { denormalize, valueToBigInt } from "@/lib/helper/bignumber";
+import { contractAddresses } from "@/lib/constants";
+import { ProtocolABI } from "@/lib/abis/protocol.abi";
 
 type Status = "idle" | "loading" | "success" | "error";
 type HexAddress = `0x${string}`;
@@ -23,7 +24,7 @@ const STEP_TEMPLATES: Step[] = [
   { step: 3, text: "Finalizing", status: "idle" },
 ];
 
-export const useWithdrawEarn = ({ onSuccess }: { onSuccess?: () => void }) => {
+export const useWithdrawProtocol = () => {
   const { address: userAddress } = useAccount();
 
   const [steps, setSteps] = useState<Step[]>(STEP_TEMPLATES);
@@ -45,13 +46,9 @@ export const useWithdrawEarn = ({ onSuccess }: { onSuccess?: () => void }) => {
     mutationFn: async ({
       amount,
       protocolAddress,
-      organizationAddress,
-      isOffRamp = false,
     }: {
       amount: number;
       protocolAddress: HexAddress;
-      organizationAddress: HexAddress;
-      isOffRamp: boolean;
     }) => {
       try {
         setSteps(STEP_TEMPLATES.map((s) => ({ ...s, status: "idle" })));
@@ -61,20 +58,16 @@ export const useWithdrawEarn = ({ onSuccess }: { onSuccess?: () => void }) => {
         if (!userAddress) throw new Error("User not connected");
 
         const denormalizedAmount = denormalize(amount, 18);
+        const mockUSDC = contractAddresses.mockUSDC;
 
         updateStepStatus(1, "success");
         updateStepStatus(2, "loading");
 
         const txHash = await writeContract(config, {
-          address: organizationAddress,
-          abi: OrganizationABI,
-          functionName: "withdrawEarn",
-          args: [
-            userAddress,
-            protocolAddress,
-            valueToBigInt(denormalizedAmount),
-            isOffRamp,
-          ],
+          address: protocolAddress,
+          abi: ProtocolABI,
+          functionName: "withdraw",
+          args: [mockUSDC, valueToBigInt(denormalizedAmount), userAddress],
         });
 
         const result = await waitForTransactionReceipt(config, {
@@ -93,8 +86,6 @@ export const useWithdrawEarn = ({ onSuccess }: { onSuccess?: () => void }) => {
         await new Promise((r) => setTimeout(r, 1000));
 
         updateStepStatus(3, "success");
-
-        onSuccess?.();
 
         return result;
       } catch (e) {

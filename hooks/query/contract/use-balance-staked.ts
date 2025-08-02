@@ -14,7 +14,7 @@ export const useBalanceStaked = ({
     address: protocolAddress,
     abi: ProtocolABI,
     functionName: "userShares",
-    args: [userAddress],
+    args: [userAddress as HexAddress],
     query: {
       enabled: !!protocolAddress && !!userAddress,
       refetchInterval: 3_000,

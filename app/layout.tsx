@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 
 import { Lexend } from "next/font/google";
 
+import "@/lib/polyfills";
 import "./globals.css";
 import DefaultLayout from "@/components/layout/default";
 import Providers from "@/components/providers";

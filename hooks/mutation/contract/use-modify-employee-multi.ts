@@ -120,7 +120,6 @@ export const useModifyEmployeeMulti = () => {
 
         const initialTransactions: Transaction[] = [];
 
-        // Setup name transaction if needed
         if (needsNameUpdate) {
           const nameSteps: Step[] = [
             { step: 1, text: "Preparing Transaction", status: "idle" },
@@ -136,7 +135,6 @@ export const useModifyEmployeeMulti = () => {
           });
         }
 
-        // Setup salary transaction if needed
         if (needsSalaryUpdate) {
           const salarySteps: Step[] = [
             { step: 1, text: "Preparing Transaction", status: "idle" },
@@ -182,8 +180,8 @@ export const useModifyEmployeeMulti = () => {
             const txHash = await writeContract(config, {
               address: organizationAddress,
               abi: OrganizationABI,
-              functionName: "setName",
-              args: [newName],
+              functionName: "setEmployeeName",
+              args: [employeeAddress, newName],
             });
 
             const result = await waitForTransactionReceipt(config, {

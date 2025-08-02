@@ -12,7 +12,9 @@ import {
 import Link from "next/link";
 
 import WithdrawDialog from "./withdraw/dialog/withdraw-dialog";
-import AutoEarnDialog from "./dialog/auto-earn";
+import EnableAutoEarnDialog from "./dialog/enable-auto-earn-stepper";
+import AutoEarnCard from "./card/auto-earn";
+import HistoryCard from "./card/history";
 
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -29,6 +31,9 @@ import { useOrganizationJoinedListById } from "@/hooks/query/graphql/use-organiz
 import { getPeriodLabel } from "@/lib/helper/period";
 import { useEmployeeListsByEmployee } from "@/hooks/query/graphql/use-employee-lists-by-employee";
 import { useEmployeeSalary } from "@/hooks/query/graphql/use-employee-salary";
+import { useEnableAutoEarnsByEmployee } from "@/hooks/query/graphql/use-enable-auto-earn-by-employee";
+import { useWithdrawsByEmployee } from "@/hooks/query/graphql/use-withdraws-by-employee";
+import { earnData } from "@/data/earn.data";
 
 interface OrganizationProps {
   id: string;
@@ -52,6 +57,19 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
     employee: employee,
     organization: org,
     updateInterval: 2000,
+  });
+
+  const { data: autoEarnData, refetch: refetchAutoEarn } =
+    useEnableAutoEarnsByEmployee({
+      employeeAddress: org?.employee ?? "",
+    });
+
+  const {
+    data: withdrawsData,
+    isLoading: withdrawsLoading,
+    refetch: refetchWithdraws,
+  } = useWithdrawsByEmployee({
+    employee: org?.employee ?? "",
   });
 
   if (orgLoading || employeesLoading) {
@@ -163,14 +181,11 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                   </TooltipContent>
                 </Tooltip>
                 <Image
-                  alt={`Organization ${(org?.createdAt ?? 0) % 36} logo`}
+                  alt={`Organization ${(Number(org?.createdAt ?? 0) % 35) + 1} logo`}
                   className="w-16 h-16 sm:w-18 sm:h-18 flex-shrink-0 rounded-lg"
                   height={72}
-                  src={`/images/abstract/${(org?.createdAt ?? 0) % 36}.jpg`}
+                  src={`/images/abstract/${(Number(org?.createdAt ?? 0) % 35) + 1}.jpg`}
                   width={72}
-                  onError={(e) => {
-                    e.currentTarget.src = "/images/default-org.png";
-                  }}
                 />
                 <div className="flex flex-col gap-1 min-w-0 flex-1">
                   <h1 className="text-2xl sm:text-3xl font-bold tracking-tight truncate">
@@ -208,7 +223,8 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
               <div className="flex gap-2 w-full sm:w-auto">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <AutoEarnDialog
+                    <EnableAutoEarnDialog
+                      currentSalary={salaryEmployee.currentBalance}
                       isAutoEarnEnabled={employee?.autoEarnStatus ?? false}
                       organizationAddress={org?.organization ?? ""}
                       trigger={
@@ -220,6 +236,7 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                       onSuccess={() => {
                         refetchEmployees();
                         refetch();
+                        refetchAutoEarn();
                       }}
                     />
                   </TooltipTrigger>
@@ -238,6 +255,8 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                       onSuccess={() => {
                         refetchEmployees();
                         refetch();
+                        refetchWithdraws();
+                        refetchAutoEarn();
                       }}
                     />
                   </TooltipTrigger>
@@ -401,6 +420,25 @@ export default function OrganizationJoined({ id }: OrganizationProps) {
                   </div>
                 </div>
               )}
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <AutoEarnCard
+                autoEarnData={autoEarnData}
+                earnData={earnData}
+                employee={employee}
+                refetch={() => {
+                  refetchEmployees();
+                  refetch();
+                  refetchWithdraws();
+                  refetchAutoEarn();
+                }}
+              />
+
+              <HistoryCard
+                withdrawsData={withdrawsData}
+                withdrawsLoading={withdrawsLoading}
+              />
             </div>
           </div>
         </div>

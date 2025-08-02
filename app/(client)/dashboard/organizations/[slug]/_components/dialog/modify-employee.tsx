@@ -42,7 +42,7 @@ interface ModifyEmployeeProps {
   employeeAddress: HexAddress;
   currentSalary: number;
   currentStatus: boolean;
-  currentName?: string;
+  currentName: string;
   refetch: () => void;
   trigger?: React.ReactNode;
 }

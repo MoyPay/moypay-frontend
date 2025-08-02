@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import Image from "next/image";
 import { AlertCircle, Fuel } from "lucide-react";
@@ -10,40 +12,40 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { useBalanceCustom } from "@/hooks/query/contract/use-balance-custom";
-import { contractAddresses } from "@/lib/constants";
 import { formatCompactNumber } from "@/lib/helper/number";
-import { useStakeProtocol } from "@/hooks/mutation/contract/use-stake";
-import TransactionDialog from "@/components/dialog/dialog-transactions";
 import { EarnData } from "@/data/earn.data";
-import { useBalanceStaked } from "@/hooks/query/contract/use-balance-staked";
 import ConnectButtonWrapper from "@/components/wallet/connect-button-wrapper";
+import TransactionDialog from "@/components/dialog/dialog-transactions";
+import { useWithdrawEarn } from "@/hooks/mutation/contract/use-withdraw-earn";
 
-interface StakeDialogProps {
+interface WithdrawAutoEarnDialogProps {
   protocol: EarnData;
   refetch?: () => void;
   trigger?: React.ReactNode;
+  organizationAddress: HexAddress;
+  stakedAmount: string;
 }
 
 type HexAddress = `0x${string}`;
 
-const StakeDialog: React.FC<StakeDialogProps> = ({
+const WithdrawAutoEarnDialog: React.FC<WithdrawAutoEarnDialogProps> = ({
   trigger,
   refetch,
   protocol,
+  organizationAddress,
+  stakedAmount,
 }) => {
   const [amount, setAmount] = useState<string>("");
   const [selectedToken] = useState<string>("USDC");
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
 
-  const { mutation, dialogStatus, steps, txHash } = useStakeProtocol();
-  const { stakedAmount } = useBalanceStaked({
-    protocolAddress: protocol.address as HexAddress,
-  });
-
-  const { balanceNormalized } = useBalanceCustom({
-    tokenAddress: contractAddresses.mockUSDC,
+  const { mutation, dialogStatus, steps, txHash } = useWithdrawEarn({
+    onSuccess: () => {
+      setIsOpen(false);
+      setAmount("");
+      refetch?.();
+    },
   });
 
   const quickAmounts: number[] = [100, 500, 1000];
@@ -53,28 +55,21 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
   };
 
   const handleMaxClick = (): void => {
-    if (balanceNormalized) {
-      setAmount(balanceNormalized.toString());
+    if (stakedAmount) {
+      setAmount(stakedAmount.toString());
     }
   };
 
-  const handleStake = (): void => {
+  const handleWithdraw = (): void => {
     setIsOpen(false);
     setTransactionOpen(true);
 
-    mutation.mutate(
-      {
-        amount: parseFloat(amount) || 0,
-        protocolAddress: protocol.address as HexAddress,
-      },
-      {
-        onSuccess: () => {
-          setIsOpen(false);
-          setAmount("");
-          refetch?.();
-        },
-      },
-    );
+    mutation.mutate({
+      amount: parseFloat(amount) || 0,
+      protocolAddress: protocol.address as HexAddress,
+      organizationAddress: organizationAddress,
+      isOffRamp: false,
+    });
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -110,7 +105,8 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
   const displayValue = getDisplayValue();
   const numericAmount = parseFloat(amount) || 0;
   const isValidAmount = amount !== "" && numericAmount > 0;
-  const isExceedsBalance = numericAmount > Number(balanceNormalized);
+  const isExceedsStaked = numericAmount > Number(stakedAmount);
+  const isLoading = mutation.isPending;
 
   return (
     <React.Fragment>
@@ -130,7 +126,7 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
               className="flex-1 flex items-center justify-center gap-1 rounded-2xl"
               variant="outline"
             >
-              STAKE
+              Withdraw Auto Earn
             </Button>
           )}
         </DialogTrigger>
@@ -141,7 +137,7 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
         >
           <DialogHeader className="p-6 pb-4">
             <DialogTitle className="text-xl font-semibold text-white">
-              Stake in {protocol.name}
+              Withdraw Auto Earn from {protocol.name}
             </DialogTitle>
             <p className="text-sm text-muted-foreground mt-1">
               {protocol.description}
@@ -166,24 +162,15 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-white/70 text-sm font-medium">
-                Staked Amount
-              </span>
-              <span className="text-xs text-white/50">
-                {formatCompactNumber(stakedAmount)} {selectedToken}
-              </span>
-            </div>
-
             <div>
               <div className="p-6 bg-gradient-to-br from-background via-background/95 to-muted/30 rounded-2xl border">
                 <div className="flex items-center justify-between mb-6">
                   <span className="text-sm font-medium flex items-center gap-2">
-                    You&apos;re staking
+                    You&apos;re withdrawing
                   </span>
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-muted-foreground px-2 py-1 bg-muted/50 rounded-full">
-                      Balance: {formatCompactNumber(balanceNormalized || 0)}{" "}
+                      Staked: {formatCompactNumber(stakedAmount || 0)}{" "}
                       {selectedToken}
                     </span>
                   </div>
@@ -195,7 +182,7 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
                     autoComplete="off"
                     autoCorrect="off"
                     className={`w-full bg-transparent text-3xl font-light text-center px-4 py-3 border-none outline-none ring-0 placeholder:text-gray-500 focus:placeholder:text-gray-400 transition-all ${
-                      isExceedsBalance ? "text-red-400" : "text-white"
+                      isExceedsStaked ? "text-red-400" : "text-white"
                     }`}
                     inputMode="decimal"
                     pattern="[0-9]*[.]?[0-9]*"
@@ -207,7 +194,7 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
                   />
                 </div>
 
-                {isExceedsBalance && (
+                {isExceedsStaked && (
                   <div className="flex items-center justify-center gap-2 text-red-400 text-sm mb-4 p-3 bg-red-50 dark:bg-red-950/20 rounded-lg">
                     <AlertCircle className="w-4 h-4" />
                     <span>Amount exceeds available balance</span>
@@ -220,8 +207,8 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
                       key={amt}
                       className="px-4 py-2 text-sm font-medium bg-muted/70 hover:bg-muted transition-colors rounded-xl"
                       disabled={
-                        typeof balanceNormalized === "number"
-                          ? amt > balanceNormalized
+                        typeof stakedAmount === "number"
+                          ? amt > stakedAmount
                           : false
                       }
                       size="sm"
@@ -266,18 +253,20 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
             <ConnectButtonWrapper>
               <Button
                 className={`${
-                  isExceedsBalance
+                  isExceedsStaked
                     ? "bg-red-600/20 border-red-600/30 text-red-400 cursor-not-allowed"
                     : ""
                 }`}
-                disabled={!isValidAmount || isExceedsBalance}
-                onClick={handleStake}
+                disabled={!isValidAmount || isExceedsStaked || isLoading}
+                onClick={handleWithdraw}
               >
-                {!isValidAmount
-                  ? "Enter an amount"
-                  : isExceedsBalance
-                    ? "Insufficient balance"
-                    : `Stake ${numericAmount.toLocaleString()} ${selectedToken}`}
+                {isLoading
+                  ? "Processing..."
+                  : !isValidAmount
+                    ? "Enter an amount"
+                    : isExceedsStaked
+                      ? "Exceeds balance"
+                      : `Withdraw ${numericAmount.toLocaleString()} ${selectedToken}`}
               </Button>
             </ConnectButtonWrapper>
           </div>
@@ -287,4 +276,4 @@ const StakeDialog: React.FC<StakeDialogProps> = ({
   );
 };
 
-export default StakeDialog;
+export default WithdrawAutoEarnDialog;

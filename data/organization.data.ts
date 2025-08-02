@@ -15,21 +15,6 @@ export interface OrganizationData {
   totalWithdrawals: string;
 }
 
-// activeEmployees: number;
-// countDeposits: number;
-// countWithdraws: number;
-// createdAt: number;
-// id: string;
-// lastTransaction: string;
-// lastUpdated: number;
-// organization: string;
-// owner: string;
-// periodTime: string;
-// token: string;
-// totalDeposits: string;
-// totalEmployees: number;
-// totalWithdrawals: string;
-
 export const organizationData = [
   {
     activeEmployees: 0,

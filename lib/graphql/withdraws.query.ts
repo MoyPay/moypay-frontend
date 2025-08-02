@@ -1,26 +1,28 @@
 import { gql } from "graphql-request";
 
-export const queryEnableAutoEarnsByEmployee = (
+export const queryWithdrawsByEmployee = (
   employee: string,
   after: string | null = null,
 ) => {
   return gql`
     query {
-      enableAutoEarns(
+      withdraws(
         orderBy: "blockTimestamp"
         orderDirection: "desc"
         where: {employee: "${employee}"}
         ${after ? `after: "${after}"` : ""}
       ){
         items {
-          employee
-          organization
-          id
           amount
           blockNumber
           blockTimestamp
-          protocol
+          employee
+          id
+          isOfframp
+          organization
+          startStream
           transactionHash
+          unrealizedSalary
         }
         pageInfo {
           startCursor
@@ -34,18 +36,20 @@ export const queryEnableAutoEarnsByEmployee = (
   `;
 };
 
-export const queryEnableAutoEarnById = (id: string) => {
+export const queryWithdrawById = (id: string) => {
   return gql`
     query {
-      enableAutoEarn(id: "${id}"){
-        employee
-        organization
-        id
+      withdraw(id: "${id}"){
         amount
         blockNumber
         blockTimestamp
-        protocol
+        employee
+        id
+        isOfframp
+        organization
+        startStream
         transactionHash
+        unrealizedSalary
       }
     }
   `;

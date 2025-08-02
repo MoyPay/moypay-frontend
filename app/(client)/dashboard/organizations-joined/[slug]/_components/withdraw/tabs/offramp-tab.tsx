@@ -27,7 +27,7 @@ export const OffRampTab = ({
   }>(null);
   const [rawAmount, setRawAmount] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
   const isExceedsBalance = parseFloat(rawAmount) > Number(balance);
 

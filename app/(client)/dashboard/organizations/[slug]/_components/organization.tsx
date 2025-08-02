@@ -566,6 +566,7 @@ export default function Organization({ id }: OrganizationProps) {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <ModifyEmployee
+                              currentName={employee.name || ""}
                               currentSalary={Number(
                                 normalize(employee.salary, 18),
                               )}

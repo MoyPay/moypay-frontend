@@ -1,4 +1,3 @@
-// WithdrawlDialog.tsx
 import React, { useState, useEffect } from "react";
 import { Building, CardSim, Flag, Plus, Trash2 } from "lucide-react";
 
@@ -45,7 +44,7 @@ export function WithdrawlDialog({
 
         setWithdrawMethod(parsed);
       } catch (e) {
-        console.error("Invalid localStorage withdrawMethod", e);
+        throw e;
       }
     }
   }, []);

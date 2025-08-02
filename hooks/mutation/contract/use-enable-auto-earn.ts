@@ -5,6 +5,8 @@ import { waitForTransactionReceipt, writeContract } from "wagmi/actions";
 
 import { config } from "@/lib/wagmi";
 import { OrganizationABI } from "@/lib/abis/organization.abi";
+import { contractAddresses } from "@/lib/constants";
+import { denormalize, valueToBigInt } from "@/lib/helper/bignumber";
 
 type Status = "idle" | "loading" | "success" | "error";
 type HexAddress = `0x${string}`;
@@ -22,7 +24,7 @@ const STEP_TEMPLATES: Step[] = [
   { step: 3, text: "Finalizing", status: "idle" },
 ];
 
-export const useAutoEarn = () => {
+export const useEnableAutoEarn = () => {
   const { address: userAddress } = useAccount();
 
   const [steps, setSteps] = useState<Step[]>(STEP_TEMPLATES);
@@ -43,9 +45,13 @@ export const useAutoEarn = () => {
   const mutation = useMutation({
     mutationFn: async ({
       organizationAddress,
+      amount,
+      protocolAddress,
       onSuccess,
     }: {
       organizationAddress: HexAddress;
+      amount: string;
+      protocolAddress?: HexAddress;
       onSuccess?: () => void;
     }) => {
       try {
@@ -53,6 +59,10 @@ export const useAutoEarn = () => {
         updateStepStatus(1, "loading");
 
         if (!userAddress) throw new Error("User not connected");
+        const selectedProtocolAddress =
+          protocolAddress || contractAddresses.mockVaultMorpho;
+
+        const denormalizedAmount = denormalize(amount, 18);
 
         updateStepStatus(1, "success");
         updateStepStatus(2, "loading");
@@ -60,8 +70,8 @@ export const useAutoEarn = () => {
         const txHash = await writeContract(config, {
           address: organizationAddress,
           abi: OrganizationABI,
-          functionName: "autoEarn",
-          args: [userAddress],
+          functionName: "enableAutoEarn",
+          args: [selectedProtocolAddress, valueToBigInt(denormalizedAmount)],
         });
 
         const result = await waitForTransactionReceipt(config, {

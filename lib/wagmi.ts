@@ -1,3 +1,5 @@
+import "@/lib/polyfills";
+
 import { getDefaultConfig } from "@rainbow-me/rainbowkit";
 import { http } from "wagmi";
 import { etherlinkTestnet } from "wagmi/chains";
@@ -11,6 +13,7 @@ const config = getDefaultConfig({
   transports: {
     [etherlinkTestnet.id]: http("https://node.ghostnet.etherlink.com"),
   },
+  ssr: true,
 });
 
 export { config };

@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
-import { Fuel } from "lucide-react";
+import { AlertCircle, Fuel } from "lucide-react";
 
 import {
   Dialog,
@@ -14,7 +14,7 @@ import { formatCompactNumber } from "@/lib/helper/number";
 import { EarnData } from "@/data/earn.data";
 import { useBalanceStaked } from "@/hooks/query/contract/use-balance-staked";
 import ConnectButtonWrapper from "@/components/wallet/connect-button-wrapper";
-import { useWithdrawEarn } from "@/hooks/mutation/contract/use-withdraw-earn";
+import { useWithdrawProtocol } from "@/hooks/mutation/contract/use-withdraw-protocol";
 import TransactionDialog from "@/components/dialog/dialog-transactions";
 
 interface WithdrawDialogProps {
@@ -38,7 +38,7 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
   const { stakedAmount } = useBalanceStaked({
     protocolAddress: protocol.address as HexAddress,
   });
-  const { mutation, dialogStatus, steps, txHash } = useWithdrawEarn();
+  const { mutation, dialogStatus, steps, txHash } = useWithdrawProtocol();
 
   const quickAmounts: number[] = [100, 500, 1000];
 
@@ -161,14 +161,14 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
             </div>
 
             <div>
-              <div className="flex flex-col border border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-2xl p-5 bg-background backdrop-blur-sm shadow-sm">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-white/70 text-sm font-medium">
+              <div className="p-6 bg-gradient-to-br from-background via-background/95 to-muted/30 rounded-2xl border">
+                <div className="flex items-center justify-between mb-6">
+                  <span className="text-sm font-medium flex items-center gap-2">
                     You&apos;re withdrawing
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-white/50">
-                      Staked: {formatCompactNumber(stakedAmount || 0)}{" "}
+                    <span className="text-xs text-muted-foreground px-2 py-1 bg-muted/50 rounded-full">
+                      Balance: {formatCompactNumber(stakedAmount || 0)}{" "}
                       {selectedToken}
                     </span>
                   </div>
@@ -176,7 +176,7 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
 
                 <div className="relative mb-4">
                   <input
-                    aria-label="Withdraw amount"
+                    aria-label="Deposit amount"
                     autoComplete="off"
                     autoCorrect="off"
                     className={`w-full bg-transparent text-3xl font-light text-center px-4 py-3 border-none outline-none ring-0 placeholder:text-gray-500 focus:placeholder:text-gray-400 transition-all ${
@@ -193,16 +193,17 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
                 </div>
 
                 {isExceedsStaked && (
-                  <div className="text-red-400 text-sm text-center mb-2">
-                    Exceeds staked amount
+                  <div className="flex items-center justify-center gap-2 text-red-400 text-sm mb-4 p-3 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>Amount exceeds available balance</span>
                   </div>
                 )}
 
-                <div className="flex flex-wrap justify-center gap-2">
+                <div className="flex flex-wrap justify-center gap-3 mb-6">
                   {quickAmounts.map((amt) => (
                     <Button
                       key={amt}
-                      className="px-3 py-1.5 text-sm font-normal bg-white/5 hover:bg-white/10 hover:border-white/30 transition-colors"
+                      className="px-4 py-2 text-sm font-medium bg-muted/70 hover:bg-muted transition-colors rounded-xl"
                       disabled={
                         typeof stakedAmount === "number"
                           ? amt > stakedAmount
@@ -216,7 +217,7 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
                     </Button>
                   ))}
                   <Button
-                    className="px-3 py-1.5 text-sm font-normal bg-white/5 hover:bg-white/10 hover:border-white/30 transition-colors"
+                    className="px-4 py-2 text-sm font-medium bg-primary/10 hover:bg-primary/20 text-primary transition-colors rounded-xl"
                     size="sm"
                     variant="ghost"
                     onClick={() => handleMaxClick()}
@@ -224,25 +225,24 @@ const WithdrawDialog: React.FC<WithdrawDialogProps> = ({
                     MAX
                   </Button>
                 </div>
-              </div>
 
-              <div className="border border-b-muted-foreground hover:border-primary transition-all duration-200 rounded-2xl p-5 pt-13 bg-background flex items-center -mt-10">
-                <div className="flex items-center justify-between w-full">
+                <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border border-dashed">
                   <div className="flex items-center gap-2">
                     <Image
                       alt="USDC Token"
-                      className="w-6 h-6"
-                      height={144}
+                      className="w-5 h-5"
+                      height={20}
                       src="/usdc.png"
-                      width={144}
+                      width={20}
                     />
-                    <span className="text-foreground font-bold text-lg">
-                      {selectedToken}
+                    <span className="font-medium text-sm">{selectedToken}</span>
+                    <span className="text-xs text-muted-foreground">
+                      • ERC-20
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 text-foreground font-semibold">
+                  <div className="flex items-center gap-2 text-muted-foreground">
                     <Fuel className="w-4 h-4" />
-                    <span>$0.1</span>
+                    <span className="text-sm">~$0.10 gas</span>
                   </div>
                 </div>
               </div>

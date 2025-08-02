@@ -54,7 +54,7 @@ export const useEmployeeListsByEmployee = ({
   const pageInfo = data?.pages.at(-1)?.employeeLists.pageInfo;
 
   return {
-    data: allItems[0], // asumsi hanya ambil item pertama
+    data: allItems[0],
     isLoading: isLoading || isFetchingNextPage,
     isError,
     error,

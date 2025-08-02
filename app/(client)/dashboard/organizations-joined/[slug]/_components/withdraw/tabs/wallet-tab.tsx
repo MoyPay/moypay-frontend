@@ -19,7 +19,7 @@ export const WalletTab = ({
 }: WithdrawDialogProps) => {
   const [amount, setAmount] = useState<string>("");
   const [rawAmount, setRawAmount] = useState<string>("");
-  const [error, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const { mutation, dialogStatus, steps, txHash } = useWithdrawOrganization({
     onSuccess,
   });

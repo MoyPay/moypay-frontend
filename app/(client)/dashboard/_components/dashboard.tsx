@@ -18,8 +18,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useOrganizationListsByOwner } from "@/hooks/query/graphql/use-organization-lists-by-owner";
-import { useOrganizationJoinedListsByEmployee } from "@/hooks/query/graphql/use-organization-joined-lists-by-employee";
 import { Button } from "@/components/ui/button";
+import { useOrganizationJoinedListsByEmployee } from "@/hooks/query/graphql/use-organization-joined-lists-by-employee";
 
 const OrganizationCardSkeleton = () => (
   <div className="p-3 border-2 border-muted rounded-xl flex gap-2 items-center min-w-[140px]">
@@ -143,7 +143,7 @@ export default function Dashboard() {
                         alt={`${org.createdAt} logo`}
                         className="w-20 h-20"
                         height={144}
-                        src={`/images/abstract/${Number(org.createdAt) % 36}.jpg`}
+                        src={`/images/abstract/${(Number(org?.createdAt ?? 0) % 35) + 1}.jpg`}
                         width={144}
                       />
                       <Button
@@ -199,7 +199,7 @@ export default function Dashboard() {
                         alt={`${org.createdAt} logo`}
                         className="w-20 h-20"
                         height={144}
-                        src={`/images/abstract/${Number(org.createdAt) % 36}.jpg`}
+                        src={`/images/abstract/${(Number(org.createdAt) % 35) + 1}.jpg`}
                         width={144}
                       />
                       <Button
