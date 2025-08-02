@@ -90,10 +90,12 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build application
-        run: pnpm build
         env:
-          # Add any build-time environment variables here
+          # Use a valid WalletConnect project ID format for build
+          NEXT_PUBLIC_WC_PROJECT_ID: "a1b2c3d4e5f6789012345678901234567890abcd"
+          NEXT_PUBLIC_ALCHEMY_KEY: "dummy-alchemy-key-for-build"
           NODE_ENV: production
+        run: pnpm build
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -156,7 +158,7 @@ jobs:
   # Deploy to production (main branch)
   deploy-production:
     name: Deploy to Production
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  
     needs: [quality, build, security]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     environment:
