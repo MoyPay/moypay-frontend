@@ -13,7 +13,7 @@ const config = getDefaultConfig({
   transports: {
     [etherlinkTestnet.id]: http("https://node.ghostnet.etherlink.com"),
   },
-  ssr: true, // Enable SSR to prevent hydration issues
+  ssr: true,
 });
 
 export { config };
