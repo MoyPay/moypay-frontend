@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useAccount } from "wagmi";
-import { Loader2, Plus, Building } from "lucide-react";
+import { Loader2, Plus, Building, AlertCircle } from "lucide-react";
 import { isAddress } from "viem";
 import Image from "next/image";
 
@@ -45,6 +45,40 @@ export default function OrganizationCreator({
   const { mutation, dialogStatus, steps, txHash } = useCreateOrganization();
 
   const isLoading = mutation.isPending;
+  const MAX_NAME_LENGTH = 15;
+  const MIN_NAME_LENGTH = 2;
+
+  const nameValidation = useMemo(() => {
+    if (!organizationName) {
+      return { isValid: true, error: "" };
+    }
+
+    const trimmedName = organizationName.trim();
+
+    if (trimmedName.length < MIN_NAME_LENGTH) {
+      return {
+        isValid: false,
+        error: `Name must be at least ${MIN_NAME_LENGTH} characters`,
+      };
+    }
+
+    if (organizationName.length > MAX_NAME_LENGTH) {
+      return {
+        isValid: false,
+        error: `Name must not exceed ${MAX_NAME_LENGTH} characters`,
+      };
+    }
+
+    if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmedName)) {
+      return {
+        isValid: false,
+        error:
+          "Name can only contain letters, numbers, spaces, hyphens, and underscores",
+      };
+    }
+
+    return { isValid: true, error: "" };
+  }, [organizationName]);
 
   const handleCreateOrganization = async () => {
     if (
@@ -107,14 +141,32 @@ export default function OrganizationCreator({
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="org-name">Organization Name</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="org-name">Organization Name</Label>
+                <span
+                  className={`text-xs ${
+                    organizationName.length > MAX_NAME_LENGTH
+                      ? "text-red-500"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {organizationName.length}/{MAX_NAME_LENGTH}
+                </span>
+              </div>
               <Input
-                className="h-12"
+                className={`h-12 ${!nameValidation.isValid ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                 id="org-name"
+                maxLength={MAX_NAME_LENGTH}
                 placeholder="Enter organization name"
                 value={organizationName}
                 onChange={(e) => setOrganizationName(e.target.value)}
               />
+              {!nameValidation.isValid && (
+                <div className="flex items-center gap-2 text-sm text-red-600">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{nameValidation.error}</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -156,7 +208,12 @@ export default function OrganizationCreator({
               Cancel
             </Button>
             <Button
-              disabled={isLoading || !tokenAddress || !organizationName.trim()}
+              disabled={
+                isLoading ||
+                !tokenAddress ||
+                !organizationName.trim() ||
+                !nameValidation.isValid
+              }
               onClick={handleCreateOrganization}
             >
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

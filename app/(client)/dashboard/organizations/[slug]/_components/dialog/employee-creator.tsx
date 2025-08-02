@@ -72,6 +72,40 @@ export default function EmployeeCreator({
   const { mutation, dialogStatus, steps, txHash } = useAddEmployee();
 
   const isLoading = mutation.isPending;
+  const MAX_NAME_LENGTH = 15;
+  const MIN_NAME_LENGTH = 2;
+
+  const nameValidation = useMemo(() => {
+    if (!employeeName) {
+      return { isValid: true, error: "" };
+    }
+
+    const trimmedName = employeeName.trim();
+
+    if (trimmedName.length < MIN_NAME_LENGTH) {
+      return {
+        isValid: false,
+        error: `Name must be at least ${MIN_NAME_LENGTH} characters`,
+      };
+    }
+
+    if (employeeName.length > MAX_NAME_LENGTH) {
+      return {
+        isValid: false,
+        error: `Name must not exceed ${MAX_NAME_LENGTH} characters`,
+      };
+    }
+
+    if (!/^[a-zA-Z0-9\s\-_]+$/.test(trimmedName)) {
+      return {
+        isValid: false,
+        error:
+          "Name can only contain letters, numbers, spaces, hyphens, and underscores",
+      };
+    }
+
+    return { isValid: true, error: "" };
+  }, [employeeName]);
 
   const startStreamTimestamp = useMemo(() => {
     if (isNow) {
@@ -157,6 +191,7 @@ export default function EmployeeCreator({
     employeeAddress &&
     salary &&
     (isNow || startStreamDate) &&
+    nameValidation.isValid &&
     addressValidation.isValid &&
     salaryValidation.isValid &&
     dateValidation.isValid;
@@ -271,14 +306,32 @@ export default function EmployeeCreator({
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="emp-name">Employee Name</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="emp-name">Employee Name</Label>
+                <span
+                  className={`text-xs ${
+                    employeeName.length > MAX_NAME_LENGTH
+                      ? "text-red-500"
+                      : "text-muted-foreground"
+                  }`}
+                >
+                  {employeeName.length}/{MAX_NAME_LENGTH}
+                </span>
+              </div>
               <Input
-                className="h-12"
+                className={`h-12 ${!nameValidation.isValid ? "border-red-500 focus-visible:ring-red-500" : ""}`}
                 id="emp-name"
+                maxLength={MAX_NAME_LENGTH}
                 placeholder="Enter employee name"
                 value={employeeName}
                 onChange={(e) => setEmployeeName(e.target.value)}
               />
+              {!nameValidation.isValid && (
+                <div className="flex items-center gap-2 text-sm text-red-600">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>{nameValidation.error}</span>
+                </div>
+              )}
             </div>
 
             <div className="space-y-2">

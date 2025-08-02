@@ -49,7 +49,20 @@ export const WalletTab = ({
   };
 
   const handleAmountClick = (value: number): void => {
-    setAmount(value.toString());
+    const rawVal = value.toString();
+
+    setRawAmount(rawVal);
+    setAmount(formatNumberWithComma(rawVal));
+
+    const numericVal = parseFloat(rawVal);
+
+    if (numericVal > parseFloat(balance)) {
+      setError("Insufficient balance to withdraw this amount");
+    } else if (numericVal < 5) {
+      setError("Minimum withdrawal amount is $5");
+    } else {
+      setError(null);
+    }
   };
 
   const handleWithdraw = (): void => {
