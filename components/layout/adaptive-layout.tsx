@@ -20,7 +20,7 @@ export default function AdaptiveLayout({ children }: AdaptiveLayoutProps) {
       return {
         showNavbar: true,
         showBackground: true,
-        containerClasses: "w-screen h-screen overflow-hidden",
+        containerClasses: "w-screen h-svh overflow-hidden",
         contentClasses:
           "bg-background w-full flex-1 rounded-2xl overflow-hidden z-40",
         innerClasses:
@@ -34,7 +34,7 @@ export default function AdaptiveLayout({ children }: AdaptiveLayoutProps) {
       return {
         showNavbar: true,
         showBackground: true,
-        containerClasses: "w-screen h-screen overflow-hidden",
+        containerClasses: "w-screen h-svh overflow-hidden",
         contentClasses:
           "bg-background w-full flex-1 rounded-2xl overflow-hidden z-40",
         innerClasses: "h-full w-full overflow-y-auto",
@@ -47,7 +47,7 @@ export default function AdaptiveLayout({ children }: AdaptiveLayoutProps) {
       return {
         showNavbar: true,
         showBackground: true,
-        containerClasses: "w-screen h-screen overflow-hidden",
+        containerClasses: "w-screen h-svh overflow-hidden",
         contentClasses:
           "bg-background w-full flex-1 rounded-2xl overflow-hidden z-40",
         innerClasses: "h-full w-full overflow-y-auto",
@@ -60,7 +60,7 @@ export default function AdaptiveLayout({ children }: AdaptiveLayoutProps) {
       return {
         showNavbar: true,
         showBackground: true,
-        containerClasses: "w-screen h-screen overflow-hidden",
+        containerClasses: "w-screen h-svh overflow-hidden",
         contentClasses:
           "bg-background w-full flex-1 rounded-2xl overflow-hidden z-40",
         innerClasses: "h-full w-full overflow-y-auto",
@@ -77,7 +77,7 @@ export default function AdaptiveLayout({ children }: AdaptiveLayoutProps) {
       return {
         showNavbar: false,
         showBackground: true,
-        containerClasses: "w-screen h-screen overflow-hidden",
+        containerClasses: "w-screen h-svh overflow-hidden",
         contentClasses: "w-full h-full flex items-center justify-center z-40",
         innerClasses: "w-full max-w-md",
         wrapperClasses: "h-full w-full relative p-4",
@@ -93,7 +93,7 @@ export default function AdaptiveLayout({ children }: AdaptiveLayoutProps) {
       return {
         showNavbar: true,
         showBackground: true,
-        containerClasses: "w-screen h-screen overflow-hidden",
+        containerClasses: "w-screen h-svh overflow-hidden",
         contentClasses:
           "bg-background w-full flex-1 rounded-2xl overflow-hidden z-40 flex items-center justify-center",
         innerClasses: "w-full max-w-lg text-center",
@@ -105,7 +105,7 @@ export default function AdaptiveLayout({ children }: AdaptiveLayoutProps) {
     return {
       showNavbar: true,
       showBackground: true,
-      containerClasses: "w-screen h-screen overflow-hidden",
+      containerClasses: "w-screen h-svh overflow-hidden",
       contentClasses:
         "bg-background w-full flex-1 rounded-2xl overflow-hidden z-40",
       innerClasses: "h-full w-full overflow-y-auto",
