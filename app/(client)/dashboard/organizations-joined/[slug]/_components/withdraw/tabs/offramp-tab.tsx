@@ -27,7 +27,7 @@ export const OffRampTab = ({
   }>(null);
   const [rawAmount, setRawAmount] = useState<string>("");
   const [amount, setAmount] = useState<string>("");
-  const [_, setError] = useState<string | null>(null);
+  const [, setError] = useState<string | null>(null);
   const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
   const isExceedsBalance = parseFloat(rawAmount) > Number(balance);
   const { mutation, dialogStatus, steps, txHash } = useWithdrawOrganization({
@@ -94,7 +94,7 @@ export const OffRampTab = ({
           setRawAmount("");
           setError(null);
         },
-      }
+      },
     );
   };
 
@@ -226,7 +226,7 @@ export const OffRampTab = ({
                 `w-full`,
                 !isExceedsBalance
                   ? "border-2 border-b-muted-foreground"
-                  : "text-red-400"
+                  : "text-red-400",
               )}
               disabled={
                 parseFloat(rawAmount || "0") < 5 ||

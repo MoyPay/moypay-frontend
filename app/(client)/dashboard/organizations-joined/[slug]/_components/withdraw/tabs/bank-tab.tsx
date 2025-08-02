@@ -22,12 +22,13 @@ export function BankTab({
   const [bank, setBank] = useState(initialData.bank || "bca");
   const [accountName, setAccountName] = useState(initialData.accountName || "");
   const [accountNumber, setAccountNumber] = useState(
-    initialData.accountNumber || ""
+    initialData.accountNumber || "",
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     let rawVal = e.target.value.replace(/[^\d]/g, "");
     let maxLength = 20;
+
     switch (bank) {
       case "mandiri":
         maxLength = 13;
@@ -58,8 +59,8 @@ export function BankTab({
         <Input
           className="w-full h-12 mt-2"
           id="account-name"
-          placeholder="eg: John Doe"
           inputMode="text"
+          placeholder="eg: John Doe"
           value={accountName}
           onChange={(e) => setAccountName(e.target.value)}
         />
@@ -74,7 +75,7 @@ export function BankTab({
             <SelectContent>
               <SelectGroup>
                 <SelectLabel>Banks</SelectLabel>
-                <SelectItem value="bca" defaultChecked>
+                <SelectItem defaultChecked value="bca">
                   BCA
                 </SelectItem>
                 <SelectItem value="bni">BNI</SelectItem>
@@ -86,9 +87,9 @@ export function BankTab({
           <Input
             className="w-full h-12 rounded-tl-none rounded-bl-none border-l-0"
             id="account-number"
-            placeholder="0.0"
             inputMode="numeric"
             pattern="\d*"
+            placeholder="0.0"
             value={accountNumber}
             onChange={handleInputChange}
           />

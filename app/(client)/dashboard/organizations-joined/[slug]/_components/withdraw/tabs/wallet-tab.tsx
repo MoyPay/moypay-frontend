@@ -1,5 +1,6 @@
 import Image from "next/image";
 import React, { useState } from "react";
+import { AlertCircle, Fuel } from "lucide-react";
 
 import { WithdrawDialogProps } from "../dialog/withdraw-dialog";
 
@@ -10,7 +11,6 @@ import { useWithdrawOrganization } from "@/hooks/mutation/contract/use-withdraw-
 import TransactionDialog from "@/components/dialog/dialog-transactions";
 import { formatNumberWithComma } from "@/lib/helper/formatted";
 import ConnectButtonWrapper from "@/components/wallet/connect-button-wrapper";
-import { AlertCircle, Fuel } from "lucide-react";
 import { formatCompactNumber } from "@/lib/helper/number";
 
 export const WalletTab = ({
@@ -80,7 +80,7 @@ export const WalletTab = ({
           setRawAmount("");
           setError(null);
         },
-      }
+      },
     );
   };
 

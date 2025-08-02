@@ -35,7 +35,9 @@ export default function WithdrawDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2"><Coins /> Withdraw</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <Coins /> Withdraw
+          </DialogTitle>
           <DialogDescription>
             ⚠️ Minimum withdrawal amount is $5
           </DialogDescription>
