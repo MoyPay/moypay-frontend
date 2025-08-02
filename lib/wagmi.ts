@@ -44,7 +44,7 @@ export const etherlinkTestnet = {
 
 const config = getDefaultConfig({
   appName: siteConfig.name,
-  projectId: "e7667cc8415f283320e0e52b8d5e6e26",
+  projectId: "04251f8180896efb96c57a0984864657",
   chains: [etherlinkTestnet],
   wallets: [
     {
