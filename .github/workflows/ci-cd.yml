@@ -106,7 +106,7 @@ jobs:
             public/
           retention-days: 30
 
-  # Security scanning
+  # Security scanning (separate from deployment dependency)
   security:
     name: Security Scan
     runs-on: ubuntu-latest
@@ -140,16 +140,23 @@ jobs:
       name: production
       url: https://app.moypay.xyz
     steps:
-      - name: Trigger deployment webhook
+      - name: Notify deployment start
         run: |
-          echo "🚀 Triggering production deployment..."
-          
-          # The webhook will be triggered automatically by GitHub's webhook system
-          # This step just confirms the deployment process has been initiated
-          echo "✅ Deployment webhook will be triggered automatically"
+          echo "🚀 Starting production deployment..."
           echo "📦 Version: ${{ github.sha }}"
           echo "🔗 Branch: ${{ github.ref_name }}"
           echo "👤 Author: ${{ github.actor }}"
+          echo "⏰ Time: $(date)"
+
+      - name: Confirm webhook trigger
+        run: |
+          echo "✅ GitHub webhook will automatically trigger server deployment"
+          echo "🌐 Target: https://app.moypay.xyz"
+          echo "📋 The deployment process includes:"
+          echo "   • Pull latest code"
+          echo "   • Install dependencies"
+          echo "   • Build application"
+          echo "   • Restart PM2 process"
 
   # Deploy to staging (main branch if you want staging)
   deploy-staging:
