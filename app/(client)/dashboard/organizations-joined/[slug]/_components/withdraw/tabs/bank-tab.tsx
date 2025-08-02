@@ -19,39 +19,80 @@ export function BankTab({
   initialData?: any;
   onChange: (data: any) => void;
 }) {
-  const [bank, setBank] = useState(initialData.bank || "");
+  const [bank, setBank] = useState(initialData.bank || "bca");
+  const [accountName, setAccountName] = useState(initialData.accountName || "");
   const [accountNumber, setAccountNumber] = useState(
-    initialData.accountNumber || "",
+    initialData.accountNumber || ""
   );
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let rawVal = e.target.value.replace(/[^\d]/g, "");
+    let maxLength = 20;
+    switch (bank) {
+      case "mandiri":
+        maxLength = 13;
+        break;
+      case "bni":
+      case "bca":
+        maxLength = 10;
+        break;
+      case "bri":
+        maxLength = 15;
+        break;
+    }
+
+    if (rawVal.length > maxLength) {
+      rawVal = rawVal.slice(0, maxLength);
+    }
+    setAccountNumber(rawVal);
+  };
+
   useEffect(() => {
-    onChange({ bank, accountNumber });
-  }, [bank, accountNumber]);
+    onChange({ bank, accountNumber, accountName });
+  }, [bank, accountNumber, accountName]);
 
   return (
-    <div className="flex flex-col gap-4 mt-3">
-      <Label htmlFor="account-number">Account Number</Label>
-      <div className="flex items-center w-full mt-2">
-        <Select value={bank} onValueChange={setBank}>
-          <SelectTrigger className="!bg-transparent rounded-tr-none rounded-br-none">
-            <SelectValue placeholder="Select a Bank" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Banks</SelectLabel>
-              <SelectItem value="bca">BCA</SelectItem>
-              <SelectItem value="bni">BNI</SelectItem>
-              <SelectItem value="bri">BRI</SelectItem>
-              <SelectItem value="mandiri">Mandiri</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+    <div className="flex flex-col gap-4">
+      <div>
+        <Label htmlFor="account-name">Account Name</Label>
         <Input
-          className="w-full rounded-tl-none rounded-bl-none border-l-0"
-          id="account-number"
-          value={accountNumber}
-          onChange={(e) => setAccountNumber(e.target.value)}
+          className="w-full h-12 mt-2"
+          id="account-name"
+          placeholder="eg: John Doe"
+          inputMode="text"
+          value={accountName}
+          onChange={(e) => setAccountName(e.target.value)}
         />
+      </div>
+      <div>
+        <Label htmlFor="account-name">Account Number</Label>
+        <div className="flex items-center w-full mt-2">
+          <Select value={bank} onValueChange={setBank}>
+            <SelectTrigger className="!bg-transparent rounded-tr-none rounded-br-none">
+              <SelectValue placeholder="Select a Bank" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Banks</SelectLabel>
+                <SelectItem value="bca" defaultChecked>
+                  BCA
+                </SelectItem>
+                <SelectItem value="bni">BNI</SelectItem>
+                <SelectItem value="bri">BRI</SelectItem>
+                <SelectItem value="mandiri">Mandiri</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Input
+            className="w-full h-12 rounded-tl-none rounded-bl-none border-l-0"
+            id="account-number"
+            placeholder="0.0"
+            inputMode="numeric"
+            pattern="\d*"
+            value={accountNumber}
+            onChange={handleInputChange}
+          />
+        </div>
       </div>
     </div>
   );

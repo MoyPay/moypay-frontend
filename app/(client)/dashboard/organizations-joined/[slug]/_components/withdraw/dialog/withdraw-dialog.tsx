@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowUp } from "lucide-react";
+import { ArrowUp, Coins } from "lucide-react";
 
 import { WithdrawTabs } from "../tabs/withdraw-tabs";
 
@@ -35,7 +35,7 @@ export default function WithdrawDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Withdraw</DialogTitle>
+          <DialogTitle className="flex items-center gap-2"><Coins /> Withdraw</DialogTitle>
           <DialogDescription>
             ⚠️ Minimum withdrawal amount is $5
           </DialogDescription>

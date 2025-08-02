@@ -5,12 +5,13 @@ import { WithdrawDialogProps } from "../dialog/withdraw-dialog";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import { TabsContent } from "@/components/ui/tabs";
 import { useWithdrawOrganization } from "@/hooks/mutation/contract/use-withdraw-organization";
 import TransactionDialog from "@/components/dialog/dialog-transactions";
 import { formatNumberWithComma } from "@/lib/helper/formatted";
-import { cn } from "@/lib/utils";
+import ConnectButtonWrapper from "@/components/wallet/connect-button-wrapper";
+import { AlertCircle, Fuel } from "lucide-react";
+import { formatCompactNumber } from "@/lib/helper/number";
 
 export const WalletTab = ({
   balance,
@@ -25,6 +26,8 @@ export const WalletTab = ({
   });
   const [transactionOpen, setTransactionOpen] = useState<boolean>(false);
   const isExceedsBalance = parseFloat(rawAmount) > Number(balance);
+  const isLoading = mutation.isPending;
+  const quickAmounts: number[] = [100, 500, 1000];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawVal = e.target.value.replace(/[,$]/g, "");
@@ -43,6 +46,10 @@ export const WalletTab = ({
         setError(null);
       }
     }
+  };
+
+  const handleAmountClick = (value: number): void => {
+    setAmount(value.toString());
   };
 
   const handleWithdraw = (): void => {
@@ -73,7 +80,7 @@ export const WalletTab = ({
           setRawAmount("");
           setError(null);
         },
-      },
+      }
     );
   };
 
@@ -82,70 +89,109 @@ export const WalletTab = ({
       <TabsContent value="wallet">
         <Card className="border-0 px-0">
           <CardContent className="px-0">
-            <div className="relative">
-              <Input
-                className={cn(
-                  "h-20 w-full rounded-xl md:text-4xl pr-36",
-                  isExceedsBalance
-                    ? "text-red-500 !border-red-500 focus-visible:border-ring focus-visible:ring-red-500 focus-visible:ring-[3px]"
-                    : "",
-                  !amount && "text-muted-foreground",
-                )}
-                placeholder="0.00"
-                type="text"
-                value={amount ? `$${amount}` : "$0"}
-                onChange={handleInputChange}
-              />
-              <div className="absolute top-1/2 -translate-y-1/2 right-4 flex gap-1 items-center border-2 py-2 px-4 rounded-full">
-                <Image
-                  alt="USDC"
-                  height={20}
-                  src="https://assets.coingecko.com/coins/images/6319/large/USD_Coin_icon.png?1547042194"
-                  width={20}
-                />
-                <span className="text-xl text-gray-500">USDC</span>
+            <div className="p-6 bg-gradient-to-br from-background via-background/95 to-muted/30 rounded-2xl border">
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-sm font-medium flex items-center gap-2">
+                  Withdraw Amount
+                </span>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground px-2 py-1 bg-muted/50 rounded-full">
+                    Balance: ${formatCompactNumber(balance || 0)}
+                  </span>
+                </div>
               </div>
-            </div>
-            {/* {error && (
-              <p className="text-sm text-red-500 mt-1 font-medium">{error}</p>
-            )} */}
-            <div className="mt-1 flex items-center justify-between">
-              <span className="text-sm font-semibold">Balance: ${balance}</span>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => {
-                  setRawAmount(balance);
-                  setAmount(formatNumberWithComma(balance));
-                  setError(null);
-                }}
-              >
-                Max
-              </Button>
+              <div className="relative mb-4">
+                <input
+                  aria-label="Deposit amount"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  className={`w-full bg-transparent text-3xl font-light text-center px-4 py-3 border-none outline-none ring-0 placeholder:text-gray-500 focus:placeholder:text-gray-400 transition-all ${
+                    isExceedsBalance ? "text-red-400" : "text-white"
+                  }`}
+                  inputMode="decimal"
+                  pattern="[0-9]*[.]?[0-9]*"
+                  placeholder="$0"
+                  spellCheck={false}
+                  type="text"
+                  value={amount ? `$${amount}` : "$0"}
+                  onChange={handleInputChange}
+                />
+              </div>
+              {isExceedsBalance && (
+                <div className="flex items-center justify-center gap-2 text-red-400 text-sm mb-4 p-3 bg-red-50 dark:bg-red-950/20 rounded-lg">
+                  <AlertCircle className="w-4 h-4" />
+                  <span>Amount exceeds available balance</span>
+                </div>
+              )}
+              <div className="flex flex-wrap justify-center gap-3 mb-6">
+                {quickAmounts.map((amt) => (
+                  <Button
+                    key={amt}
+                    className="px-4 py-2 text-sm font-medium bg-muted/70 hover:bg-muted transition-colors rounded-xl"
+                    disabled={
+                      typeof rawAmount === "number" ? amt > rawAmount : false
+                    }
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => handleAmountClick(amt)}
+                  >
+                    ${amt.toLocaleString()}
+                  </Button>
+                ))}
+                <Button
+                  className="px-4 py-2 text-sm font-medium bg-primary/10 hover:bg-primary/20 text-primary transition-colors rounded-xl"
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => {
+                    setRawAmount(balance);
+                    setAmount(formatNumberWithComma(balance));
+                    setError(null);
+                  }}
+                >
+                  MAX
+                </Button>
+              </div>
+              <div className="flex items-center justify-between p-3 bg-muted/30 rounded-xl border border-dashed">
+                <div className="flex items-center gap-2">
+                  <Image
+                    alt="USDC Token"
+                    className="w-5 h-5"
+                    height={20}
+                    src="/usdc.png"
+                    width={20}
+                  />
+                  <span className="font-medium text-sm">USDC</span>
+                  <span className="text-xs text-muted-foreground">
+                    • ERC-20
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Fuel className="w-4 h-4" />
+                  <span className="text-sm">~$0.10 gas</span>
+                </div>
+              </div>
             </div>
           </CardContent>
           <CardFooter className="px-0">
-            <Button
-              className={cn(
-                `w-full`,
-                !isExceedsBalance
-                  ? "border-2 border-b-muted-foreground"
-                  : "text-red-400",
-              )}
-              disabled={
-                parseFloat(rawAmount || "0") < 5 ||
-                parseFloat(rawAmount || "0") > parseFloat(balance)
-              }
-              size="lg"
-              variant={isExceedsBalance ? "destructive" : "default"}
-              onClick={handleWithdraw}
-            >
-              {!rawAmount
-                ? "Enter Amount"
-                : !isExceedsBalance
-                  ? `Withdraw $${parseFloat(rawAmount).toLocaleString()}`
-                  : "Insufficient balance"}
-            </Button>
+            <ConnectButtonWrapper>
+              <Button
+                className="w-full"
+                disabled={
+                  parseFloat(rawAmount || "0") < 5 ||
+                  parseFloat(rawAmount || "0") > parseFloat(balance)
+                }
+                size="lg"
+                onClick={handleWithdraw}
+              >
+                {isLoading
+                  ? "Processing..."
+                  : !rawAmount
+                    ? "Enter Amount"
+                    : !isExceedsBalance
+                      ? `Withdraw $${parseFloat(rawAmount).toLocaleString()}`
+                      : "Insufficient balance"}
+              </Button>
+            </ConnectButtonWrapper>
           </CardFooter>
         </Card>
       </TabsContent>
