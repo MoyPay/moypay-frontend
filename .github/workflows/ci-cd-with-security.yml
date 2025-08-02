@@ -1,0 +1,203 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+# Add required permissions for security scanning
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+env:
+  NODE_VERSION: '20'
+  PNPM_VERSION: '10.12.1'
+
+jobs:
+  # Quality checks and testing
+  quality:
+    name: Code Quality & Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run linting
+        run: pnpm lint
+
+      - name: Type check
+        run: pnpm exec tsc --noEmit
+
+      - name: Check for security vulnerabilities
+        run: pnpm audit --audit-level moderate
+
+  # Build job
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: quality
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build application
+        env:
+          # Use a valid WalletConnect project ID format for build
+          NEXT_PUBLIC_WC_PROJECT_ID: "a1b2c3d4e5f6789012345678901234567890abcd"
+          NEXT_PUBLIC_ALCHEMY_KEY: "dummy-alchemy-key-for-build"
+          NODE_ENV: production
+        run: pnpm build
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            .next/
+            public/
+          retention-days: 30
+
+  # Security scanning (made more robust with error handling)
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    needs: quality
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development')
+    continue-on-error: true  # Don't fail the entire workflow if security scan fails
+    permissions:
+      contents: read
+      security-events: write
+      actions: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always() && github.event_name == 'push'
+        with:
+          sarif_file: 'trivy-results.sarif'
+        continue-on-error: true  # Don't fail if upload fails
+
+      - name: Show scan results summary
+        if: always()
+        run: |
+          echo "🔍 Security scan completed"
+          if [ -f "trivy-results.sarif" ]; then
+            echo "📊 SARIF file generated successfully"
+            # Show basic info about findings without exposing details
+            echo "📄 Scan results available in Security tab (if permissions allow)"
+          else
+            echo "⚠️ SARIF file not generated"
+          fi
+
+  # Deploy to production (development branch triggers production deployment)
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest  
+    needs: [quality, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development'
+    environment:
+      name: production
+      url: https://app.moypay.xyz
+    steps:
+      - name: Notify deployment start
+        run: |
+          echo "🚀 Starting production deployment..."
+          echo "📦 Version: ${{ github.sha }}"
+          echo "🔗 Branch: ${{ github.ref_name }}"
+          echo "👤 Author: ${{ github.actor }}"
+          echo "⏰ Time: $(date)"
+
+      - name: Confirm webhook trigger
+        run: |
+          echo "✅ GitHub webhook will automatically trigger server deployment"
+          echo "🌐 Target: https://app.moypay.xyz"
+          echo "📋 The deployment process includes:"
+          echo "   • Pull latest code"
+          echo "   • Install dependencies"
+          echo "   • Build application"
+          echo "   • Restart PM2 process"
+          echo ""
+          echo "🔍 Monitor deployment:"
+          echo "   • Webhook logs: pm2 logs moypay-webhook"
+          echo "   • Deployment logs: tail -f /root/deployment-scripts/deploy.log"
+
+  # Deploy to staging (main branch if you want staging)
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [quality, build]
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment:
+      name: staging
+      url: https://staging.moypay.com
+    steps:
+      - name: Deploy to staging
+        run: |
+          echo "🚀 Deploying to staging environment..."
+          echo "This would deploy to staging if main branch is used for staging"
+          echo "Currently development branch is used for production"

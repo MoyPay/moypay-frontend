@@ -6,6 +6,12 @@ on:
   pull_request:
     branches: [main, development]
 
+# Only essential permissions
+permissions:
+  contents: read
+  actions: read
+
+# Essential environment variables
 env:
   NODE_VERSION: '20'
   PNPM_VERSION: '10.12.1'
@@ -106,70 +112,15 @@ jobs:
             public/
           retention-days: 30
 
-  # Security scanning (separate from deployment dependency)
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    needs: quality
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/development')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy scan results to GitHub Security tab
-        uses: github/codeql-action/upload-sarif@v3
-        if: always()
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-  # Deploy to production (development branch triggers production deployment)
+  # Deploy to production (ONLY IF NEEDED, OTHERWISE, THIS CAN BE MERGED WITH MAIN DEPLOYMENT LOGIC)
   deploy-production:
     name: Deploy to Production
-    runs-on: ubuntu-latest  
-    needs: [quality, build]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/development'
-    environment:
-      name: production
-      url: https://app.moypay.xyz
-    steps:
-      - name: Notify deployment start
-        run: |
-          echo "🚀 Starting production deployment..."
-          echo "📦 Version: ${{ github.sha }}"
-          echo "🔗 Branch: ${{ github.ref_name }}"
-          echo "👤 Author: ${{ github.actor }}"
-          echo "⏰ Time: $(date)"
-
-      - name: Confirm webhook trigger
-        run: |
-          echo "✅ GitHub webhook will automatically trigger server deployment"
-          echo "🌐 Target: https://app.moypay.xyz"
-          echo "📋 The deployment process includes:"
-          echo "   • Pull latest code"
-          echo "   • Install dependencies"
-          echo "   • Build application"
-          echo "   • Restart PM2 process"
-
-  # Deploy to staging (main branch if you want staging)
-  deploy-staging:
-    name: Deploy to Staging
     runs-on: ubuntu-latest
     needs: [quality, build]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    environment:
-      name: staging
-      url: https://staging.moypay.com
+    if: github.event_name == 'push' && github.ref == 'refs/heads/development'
     steps:
-      - name: Deploy to staging
+      - name: Confirm webhook trigger
         run: |
-          echo "🚀 Deploying to staging environment..."
-          echo "This would deploy to staging if main branch is used for staging"
-          echo "Currently development branch is used for production"
+          echo "Webhook triggered for production deployment..."
+          echo "Deployment handled by webhook system, ensuring latest code deployed to production server"
+
