@@ -18,8 +18,7 @@ import { siteConfig } from "@/config/site";
 
 const config = getDefaultConfig({
   appName: siteConfig.name,
-  projectId:
-    process.env.NEXT_PUBLIC_WC_PROJECT_ID || "e7667cc8415f283320e0e52b8d5e6e26",
+  projectId: "e7667cc8415f283320e0e52b8d5e6e26",
   chains: [etherlinkTestnet],
   wallets: [
     {
