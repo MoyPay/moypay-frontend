@@ -54,7 +54,7 @@ MoyPay is a comprehensive payroll management app that helps organizations manage
    
    Fill in the required environment variables:
    ```env
-   NEXT_PUBLIC_WC_PROJECT_ID=your_walletconnect_project_id
+   NEXT_PUBLIC_PROJECT_ID=your_walletconnect_project_id
    NEXT_PUBLIC_ALCHEMY_KEY=your_alchemy_api_key
    NEXT_PUBLIC_ALCHEMY_KEY_2=your_backup_alchemy_key
    NEXT_PUBLIC_ALCHEMY_KEY_3=your_third_alchemy_key
@@ -81,7 +81,7 @@ MoyPay is a comprehensive payroll management app that helps organizations manage
 
 | Variable | Description | Required |
 |----------|-------------|----------|
-| `NEXT_PUBLIC_WC_PROJECT_ID` | WalletConnect Project ID for wallet connections | Yes |
+| `NEXT_PUBLIC_PROJECT_ID` | WalletConnect Project ID for wallet connections | Yes |
 | `NEXT_PUBLIC_ALCHEMY_KEY` | Primary Alchemy API key for blockchain RPC | Yes |
 
 ### Blockchain Network
