@@ -6,7 +6,7 @@ export const siteConfig = {
     "MoyPay is payroll management app that helps you manage your employees' payroll, taxes, and benefits with ease.",
   url:
     process.env.NODE_ENV === "production"
-      ? "https://moypay.vercel.app"
+      ? "https://app.moypay.xyz"
       : "http://localhost:3000",
   links: {
     github: "https://github.com/MoyPay",

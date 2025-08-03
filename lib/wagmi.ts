@@ -1,65 +1,75 @@
-import "@/lib/polyfills";
+import type { AppKitNetwork } from "@reown/appkit/networks";
 
-import { getDefaultConfig } from "@rainbow-me/rainbowkit";
-import { http } from "wagmi";
-// import { etherlinkTestnet } from "wagmi/chains";
-import {
-  braveWallet,
-  coinbaseWallet,
-  metaMaskWallet,
-  okxWallet,
-  rabbyWallet,
-  rainbowWallet,
-  trustWallet,
-  walletConnectWallet,
-} from "@rainbow-me/rainbowkit/wallets";
+import { createAppKit } from "@reown/appkit/react";
+import { type Config } from "wagmi";
+import { WagmiAdapter } from "@reown/appkit-adapter-wagmi";
+import { defineChain } from "@reown/appkit/networks";
 
 import { siteConfig } from "@/config/site";
 
-export const etherlinkTestnet = {
+export const projectId = process.env.NEXT_PUBLIC_PROJECT_ID || "";
+
+if (!projectId) {
+  throw new Error("Project ID is not defined");
+}
+
+export const etherlinkTestnet = defineChain({
   id: 128123,
   name: "Etherlink Testnet",
-  network: "etherlink-testnet",
+  chainNamespace: "eip155",
+  caipNetworkId: "eip155:128123",
   nativeCurrency: {
+    decimals: 18,
     name: "Tez",
     symbol: "XTZ",
-    decimals: 18,
   },
   rpcUrls: {
-    default: {
-      http: ["https://rpc.ankr.com/etherlink_testnet"],
-    },
-    public: {
-      http: ["https://rpc.ankr.com/etherlink_testnet"],
-    },
+    default: { http: ["https://node.ghostnet.etherlink.com"] },
   },
   blockExplorers: {
     default: {
-      name: "Explorer",
-      url: "https://testnet-explorer.etherlink.com",
+      name: "Etherlink Testnet",
+      url: "https://testnet.explorer.etherlink.com",
     },
   },
   testnet: true,
+  custom: {
+    iconUrl: "/etherlink-logo.png",
+  },
+});
+
+export const networks = [etherlinkTestnet] as [
+  AppKitNetwork,
+  ...AppKitNetwork[],
+];
+
+export const wagmiAdapter = new WagmiAdapter({
+  ssr: true,
+  projectId,
+  networks,
+});
+
+const metadata = {
+  name: siteConfig.name,
+  description: siteConfig.description,
+  url: siteConfig.url,
+  icons: ["/logo-white.png"],
 };
 
-const config = getDefaultConfig({
-  appName: siteConfig.name,
-  projectId: "04251f8180896efb96c57a0984864657",
-  chains: [etherlinkTestnet],
-  wallets: [
-    {
-      groupName: "Recommended",
-      wallets: [metaMaskWallet, okxWallet, rabbyWallet, walletConnectWallet],
-    },
-    {
-      groupName: "Others",
-      wallets: [rainbowWallet, coinbaseWallet, braveWallet, trustWallet],
-    },
-  ],
-  transports: {
-    [etherlinkTestnet.id]: http("https://rpc.ankr.com/etherlink_testnet"),
+export const modal = createAppKit({
+  adapters: [wagmiAdapter],
+  projectId,
+  networks,
+  metadata,
+  themeMode: "dark",
+  features: {
+    analytics: true,
   },
-  ssr: true,
+  // themeVariables: {
+  //   "--w3m-accent": "#000000",
+  // },
 });
+
+const config: Config = wagmiAdapter.wagmiConfig;
 
 export { config };

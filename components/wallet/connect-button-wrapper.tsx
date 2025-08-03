@@ -1,6 +1,6 @@
-import { useConnectModal } from "@rainbow-me/rainbowkit";
 import React from "react";
 import { useAccount } from "wagmi";
+import { useAppKit } from "@reown/appkit/react";
 
 import { Button } from "../ui/button";
 
@@ -19,17 +19,13 @@ export default function ConnectButtonWrapper({
     | "ghost"
     | "link";
 }) {
-  const { openConnectModal } = useConnectModal();
+  const { open } = useAppKit();
   const { isConnected } = useAccount();
 
   return (
     <React.Fragment>
       {!isConnected ? (
-        <Button
-          className={className}
-          variant={variant}
-          onClick={openConnectModal}
-        >
+        <Button className={className} variant={variant} onClick={() => open()}>
           Connect Wallet
         </Button>
       ) : (

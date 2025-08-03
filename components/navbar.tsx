@@ -7,7 +7,9 @@ import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 
-import { ConnectButtonCustom } from "./wallet/connect-button-custom";
+// import { ConnectButtonCustom } from "./wallet/connect-button-custom";
+
+import { ConnectButton } from "./wallet/connect-button";
 
 import { siteConfig } from "@/config/site";
 
@@ -87,7 +89,7 @@ const Navbar: React.FC<NavbarProps> = () => {
             </button>
           </div>
           <div className="hidden lg:flex">
-            <ConnectButtonCustom />
+            <ConnectButton />
           </div>
         </div>
       </div>
@@ -112,7 +114,7 @@ const Navbar: React.FC<NavbarProps> = () => {
                 </Link>
               ))}
             </div>
-            <ConnectButtonCustom />
+            <ConnectButton />
           </div>
         </div>
       )}

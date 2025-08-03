@@ -32,8 +32,8 @@ export const urlExplorer = ({
   return "";
 };
 
-export const formatAddress = (address: string) => {
+export const formatAddress = (address: string, sliceLength: number = 6) => {
   if (!address) return "No address";
 
-  return `${address.slice(0, 6)}...${address.slice(-6)}`;
+  return `${address.slice(0, sliceLength)}...${address.slice(-sliceLength)}`;
 };

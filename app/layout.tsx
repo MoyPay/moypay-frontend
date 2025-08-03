@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
 
 import { Lexend } from "next/font/google";
-
-import "@/lib/polyfills";
 import "./globals.css";
+import { headers } from "next/headers";
+
 import AdaptiveLayout from "@/components/layout/adaptive-layout";
 import Providers from "@/components/providers";
 import { siteConfig } from "@/config/site";
@@ -51,15 +51,18 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersData = await headers();
+  const cookies = headersData.get("cookie");
+
   return (
     <html suppressHydrationWarning lang="en">
       <body className={`${lexend.className} antialiased bg-background`}>
-        <Providers>
+        <Providers cookies={cookies}>
           <AdaptiveLayout>{children}</AdaptiveLayout>
         </Providers>
       </body>

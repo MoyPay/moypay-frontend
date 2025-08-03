@@ -29,7 +29,8 @@
     "@radix-ui/react-switch": "^1.2.5",
     "@radix-ui/react-tabs": "^1.1.12",
     "@radix-ui/react-tooltip": "^1.2.7",
-    "@rainbow-me/rainbowkit": "^2.2.8",
+    "@reown/appkit": "^1.7.17",
+    "@reown/appkit-adapter-wagmi": "^1.7.17",
     "@tanstack/react-query": "^5.84.1",
     "@tanstack/react-table": "^8.21.3",
     "@types/three": "^0.178.1",
@@ -107,7 +108,17 @@
       "allowedVersions": {
         "react": "19"
       }
-    }
+    },
+    "onlyBuiltDependencies": [
+      "@reown/appkit",
+      "@tailwindcss/oxide",
+      "bufferutil",
+      "keccak",
+      "secp256k1",
+      "sharp",
+      "unrs-resolver",
+      "utf-8-validate"
+    ]
   },
   "packageManager": "pnpm@10.12.1"
 }
