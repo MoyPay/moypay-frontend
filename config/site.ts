@@ -21,6 +21,10 @@ export const siteConfig = {
       href: "/earn",
     },
     {
+      label: "Faucet",
+      href: "/faucet",
+    },
+    {
       label: "Dashboard",
       href: "/dashboard",
     },

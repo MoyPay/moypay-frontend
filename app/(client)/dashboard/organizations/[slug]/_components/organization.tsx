@@ -174,10 +174,10 @@ export default function Organization({ id }: OrganizationProps) {
                   </TooltipContent>
                 </Tooltip>
                 <Image
-                  alt={`Organization ${(org?.createdAt ?? 0) % 36} logo`}
+                  alt={`Organization ${(Number(org?.createdAt ?? 0) % 35) + 1} logo`}
                   className="w-16 h-16 sm:w-18 sm:h-18 flex-shrink-0 rounded-lg"
                   height={72}
-                  src={`/images/abstract/${(org?.createdAt ?? 0) % 36}.jpg`}
+                  src={`/images/abstract/${(Number(org?.createdAt ?? 0) % 35) + 1}.jpg`}
                   width={72}
                   onError={(e) => {
                     e.currentTarget.src = "/images/default-org.png";
