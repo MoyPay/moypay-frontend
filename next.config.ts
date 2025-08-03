@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
+  output: (typeof process !== "undefined" && process.env.NODE_ENV === 'production') ? 'standalone' : undefined,
   webpack: (config, { webpack }) => {
     config.externals.push("pino-pretty", "lokijs", "encoding");
     

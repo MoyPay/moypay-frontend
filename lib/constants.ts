@@ -1,4 +1,7 @@
-const env = process.env;
+const env =
+  typeof process !== "undefined"
+    ? process.env
+    : ({} as Record<string, string | undefined>);
 
 export const contractAddresses = {
   factory: (env.NEXT_PUBLIC_FACTORY_ADDRESS ||

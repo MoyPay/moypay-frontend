@@ -8,7 +8,9 @@ import { defineChain } from "@reown/appkit/networks";
 import { siteConfig } from "@/config/site";
 
 export const projectId =
-  process.env.NEXT_PUBLIC_PROJECT_ID || "e7667cc8415f283320e0e52b8d5e6e26";
+  (typeof process !== "undefined"
+    ? process.env.NEXT_PUBLIC_PROJECT_ID
+    : undefined) || "e7667cc8415f283320e0e52b8d5e6e26";
 
 if (!projectId) {
   throw new Error("Project ID is not defined");
