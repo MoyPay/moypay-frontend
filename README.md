@@ -10,7 +10,7 @@ MoyPay is a comprehensive payroll management app that helps organizations manage
 - **Payroll Processing** - Automated salary distribution and payment processing
 - **Auto Earn** - Automatic investment of salaries into yield-optimizing DeFi protocols
 - **Dashboard** - Comprehensive analytics and reporting for organizations and employees
-- **Web3 Integration** - Connect with Web3 wallets via RainbowKit
+- **Web3 Integration** - Connect with Web3 wallets via Reown
 - **Responsive Design** - Mobile-first responsive interface
 
 ## 🛠️ Tech Stack
@@ -20,7 +20,7 @@ MoyPay is a comprehensive payroll management app that helps organizations manage
 - **Styling**: Tailwind CSS 4.1
 - **UI Components**: Radix UI, Lucide Icons
 - **Blockchain**: Wagmi, Viem, Ethers.js
-- **Wallet Connection**: RainbowKit
+- **Wallet Connection**: Reown
 - **State Management**: TanStack Query
 - **Charts**: Recharts, Lightweight Charts
 - **Forms**: React Hook Form + Zod validation
@@ -129,7 +129,7 @@ The app is configured to work with **Etherlink Testnet**:
 - Compound interest calculations
 
 ### Web3 Wallet Integration
-- Support for multiple wallet types via RainbowKit
+- Support for multiple wallet types via Reown
 - Secure transaction signing
 - Real-time balance and transaction tracking
 - Network switching and error handling
@@ -167,7 +167,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built for the Etherlink Hackathon
 - Powered by [Next.js](https://nextjs.org/)
 - UI components from [Radix UI](https://radix-ui.com/)
-- Wallet integration via [RainbowKit](https://www.rainbowkit.com/)
+- Wallet integration via [Reown](https://reown.com/)
 - Blockchain integration with [Wagmi](https://wagmi.sh/)
 
 ## 📞 Support
