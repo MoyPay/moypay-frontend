@@ -41,7 +41,7 @@ export const ConnectButton = () => {
     <React.Fragment>
       {isConnected ? (
         <button
-          className="rounded-full border-foreground/10 border px-2 py-1 gap-2 relative flex items-center cursor-pointer w-auto"
+          className="rounded-full border-foreground/10 border px-2 py-1 gap-2 relative flex items-center cursor-pointer w-fit"
           onClick={handleConnect}
         >
           <div className="flex items-center gap-2">
@@ -73,7 +73,7 @@ export const ConnectButton = () => {
         </button>
       ) : (
         <button
-          className="rounded-full border-foreground/10 border px-5 py-2 flex items-center cursor-pointer"
+          className="rounded-full border-foreground/10 border px-5 py-2 flex items-center cursor-pointer w-fit"
           onClick={handleConnect}
         >
           Connect Wallet
