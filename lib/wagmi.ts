@@ -14,22 +14,29 @@ if (!projectId) {
 }
 
 export const coreTestnet = defineChain({
-  id: 1115,
-  name: "Core Testnet",
+  id: 1114,
+  name: "Core Testnet2",
   chainNamespace: "eip155",
   caipNetworkId: "eip155:1115",
   nativeCurrency: {
     decimals: 18,
-    name: "tCore",
-    symbol: "TCORE",
+    name: "tCore2",
+    symbol: "TCORE2",
   },
   rpcUrls: {
-    default: { http: ["https://core-testnet.drpc.org"] },
+    default: { http: ["https://rpc.test2.btcs.network"] },
   },
   blockExplorers: {
     default: {
-      name: "Core Testnet",
+      name: "Core Testnet2",
       url: "https://scan.test2.btcs.network",
+      apiUrl: "https://api.test2.btcs.network/api",
+    },
+  },
+  contracts: {
+    multicall3: {
+      address: "0x3CB285ff3Cd5C7C7e570b1E7DE3De17A0f985e56",
+      blockCreated: 3_838_600,
     },
   },
   testnet: true,
