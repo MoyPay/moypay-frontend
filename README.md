@@ -89,7 +89,7 @@ MoyPay is a comprehensive payroll management app that helps organizations manage
 The app is configured to work with **Core Testnet**:
 - Network: Core Testnet
 - RPC URL: `https://core-testnet.drpc.org`
-- Chain ID: 1115 (Core Testnet)
+- Chain ID: 1114 (Core Testnet)
 
 ## 🏗️ Project Structure
 

@@ -17,7 +17,7 @@ export const coreTestnet = defineChain({
   id: 1114,
   name: "Core Testnet2",
   chainNamespace: "eip155",
-  caipNetworkId: "eip155:1115",
+  caipNetworkId: "eip155:1114",
   nativeCurrency: {
     decimals: 18,
     name: "tCore2",

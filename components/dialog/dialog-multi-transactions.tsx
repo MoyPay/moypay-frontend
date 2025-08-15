@@ -271,7 +271,7 @@ const MultiTransactionDialog: React.FC<MultiTransactionDialogProps> = ({
                             className="p-1 hover:bg-gray-700 rounded transition-colors"
                             href={urlExplorer({
                               txHash: transaction.txHash,
-                              chainId: 1115,
+                              chainId: 1114,
                             })}
                             rel="noopener noreferrer"
                             target="_blank"
