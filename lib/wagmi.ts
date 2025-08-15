@@ -20,8 +20,8 @@ export const coreTestnet = defineChain({
   caipNetworkId: "eip155:1115",
   nativeCurrency: {
     decimals: 18,
-    name: "Tez",
-    symbol: "XTZ",
+    name: "tCore",
+    symbol: "TCORE",
   },
   rpcUrls: {
     default: { http: ["https://core-testnet.drpc.org"] },
