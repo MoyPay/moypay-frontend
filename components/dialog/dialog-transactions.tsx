@@ -212,7 +212,7 @@ const TransactionDialog: React.FC<TransactionDialogProps> = ({
                   </button>
                   <a
                     className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
-                    href={urlExplorer({ txHash, chainId: 128123 })}
+                    href={urlExplorer({ txHash, chainId: 1115 })}
                     rel="noopener noreferrer"
                     target="_blank"
                     title="View on Explorer"

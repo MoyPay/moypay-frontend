@@ -76,7 +76,7 @@ export default function HistoryCard({
                     <Link
                       className="flex items-center gap-1 hover:text-primary"
                       href={urlExplorer({
-                        chainId: 128123,
+                        chainId: 1115,
                         txHash: withdraw.transactionHash,
                       })}
                       rel="noopener noreferrer"

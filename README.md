@@ -1,6 +1,6 @@
 # MoyPay
 
-> A modern payroll management application built on Etherlink blockchain
+> A modern payroll management application built on Core blockchain
 
 MoyPay is a comprehensive payroll management app that helps organizations manage their employees' payroll, taxes, and benefits with ease. Built with Next.js 15 and integrated with blockchain technology for secure and transparent salary management.
 
@@ -86,10 +86,10 @@ MoyPay is a comprehensive payroll management app that helps organizations manage
 
 ### Blockchain Network
 
-The app is configured to work with **Etherlink Testnet**:
-- Network: Etherlink Testnet
-- RPC URL: `https://node.ghostnet.etherlink.com`
-- Chain ID: 128123 (Etherlink Testnet)
+The app is configured to work with **Core Testnet**:
+- Network: Core Testnet
+- RPC URL: `https://core-testnet.drpc.org`
+- Chain ID: 1115 (Core Testnet)
 
 ## 🏗️ Project Structure
 
@@ -164,7 +164,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- Built for the Etherlink Hackathon
+- Built for the Core Hackathon
 - Powered by [Next.js](https://nextjs.org/)
 - UI components from [Radix UI](https://radix-ui.com/)
 - Wallet integration via [Reown](https://reown.com/)

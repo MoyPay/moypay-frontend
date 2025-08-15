@@ -12,8 +12,8 @@ export const urlExplorer = ({
       explorer: string;
     };
   } = {
-    128123: {
-      explorer: "https://testnet.explorer.etherlink.com",
+    1115: {
+      explorer: "https://scan.test2.btcs.network",
     },
   };
 

@@ -13,35 +13,32 @@ if (!projectId) {
   throw new Error("Project ID is not defined");
 }
 
-export const etherlinkTestnet = defineChain({
-  id: 128123,
-  name: "Etherlink Testnet",
+export const coreTestnet = defineChain({
+  id: 1115,
+  name: "Core Testnet",
   chainNamespace: "eip155",
-  caipNetworkId: "eip155:128123",
+  caipNetworkId: "eip155:1115",
   nativeCurrency: {
     decimals: 18,
     name: "Tez",
     symbol: "XTZ",
   },
   rpcUrls: {
-    default: { http: ["https://node.ghostnet.etherlink.com"] },
+    default: { http: ["https://core-testnet.drpc.org"] },
   },
   blockExplorers: {
     default: {
-      name: "Etherlink Testnet",
-      url: "https://testnet.explorer.etherlink.com",
+      name: "Core Testnet",
+      url: "https://scan.test2.btcs.network",
     },
   },
   testnet: true,
   custom: {
-    iconUrl: "/etherlink-logo.png",
+    iconUrl: "/core-logo.png",
   },
 });
 
-export const networks = [etherlinkTestnet] as [
-  AppKitNetwork,
-  ...AppKitNetwork[],
-];
+export const networks = [coreTestnet] as [AppKitNetwork, ...AppKitNetwork[]];
 
 export const wagmiAdapter = new WagmiAdapter({
   storage: createStorage({
